@@ -6,7 +6,8 @@
  * Date: 05/10/2015
  * Time: 10:55
  */
-header('Content-Type: text/html; charset=utf-8');
+header('Content-Type: charset=utf-8');
+
 
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
@@ -20,6 +21,12 @@ $autoLoad->setPath(ROOT);
 $autoLoad->setExt('php');
 
 spl_autoload_register(array($autoLoad, 'load'));
+
+echo "Página de teste.";
+
+
+
+
 
 
 
