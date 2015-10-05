@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: Adriano
- * Date: 18/09/2015
+ * Date: 05/10/2015
  * Time: 15:31
  */
 
-namespace Classes\DataBase;
+namespace Classes\Config;
 use \PDO;
 
 class Conexao
