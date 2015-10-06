@@ -6,7 +6,7 @@
  * Date: 05/10/2015
  * Time: 10:55
  */
-header('Content-Type: charset=utf-8');
+//header('Content-Type: charset=utf-8');
 
 
 define('DS', DIRECTORY_SEPARATOR);
@@ -22,8 +22,13 @@ $autoLoad->setExt('php');
 
 spl_autoload_register(array($autoLoad, 'load'));
 
-echo "Página de teste.";
+echo "<h3>Pagina de teste</h3>";
 
+$ativo = "LiuAED_basteao";
+
+$posicao = strpos($ativo, 'AED_');
+
+echo substr($ativo, $posicao);
 
 
 

@@ -17,7 +17,6 @@ class Corretoras
 
     public function __construct(){
 
-        $this->listAnalises = new Analise();
         $this->conn         = Conexao::getInstance();
     }
 

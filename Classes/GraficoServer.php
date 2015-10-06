@@ -25,7 +25,7 @@ class GraficoServer
         // <String=código do ativo,TreeMap=histórico do ativo>
     //private LinkedHashMap<String,TreeMap<String,Barra>> mapHistoricos = new LinkedHashMap<String,TreeMap<String,Barra>>();
 
-    private $dataHoje = 0;
+    protected $dataHoje = 0;
 
     private $atualizandoMemoria = false;
 
@@ -60,7 +60,7 @@ class GraficoServer
     //private ArrayList<Alerta> listAlertas = new ArrayList<Alerta>(tamanhoListAL);
     //private Thread threadAlertas;
 
-    private $bLog = false;
+    protected $bLog = false;
 
     private $ultMinutoCacheMemoria = -1;
 
