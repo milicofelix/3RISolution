@@ -97,8 +97,8 @@ public function getAnalises($ultDH, $listLicAnalises = array(), $bTemAnaliseGrau
                 $sql = "";
 
 				$sql .= "SELECT c.email, l.cd_licenca, nm_perfil, ativo_referencia, periodo_ativo, dh_comentario, compartilhar, gratuito, o.cd_empresa, ";
-				$sql .= "(select nm_perfil from perfil_grafico_java where usuario = c.email and nm_perfil = ativo_referencia) as nm_perfil2, ";
-				$sql .= "(select nm_perfil from perfil_grafico_java where usuario = c.email order by dh_ult_acesso desc limit 1) as nm_perfil3, o.modulos_grupo_analise ";
+				$sql .= "(SELECT nm_perfil from perfil_grafico_java where usuario = c.email and nm_perfil = ativo_referencia) as nm_perfil2, ";
+				$sql .= "(SELECT nm_perfil from perfil_grafico_java where usuario = c.email order by dh_ult_acesso desc limit 1) as nm_perfil3, o.modulos_grupo_analise ";
 				$sql .= "FROM cliente_usuario_web c, licenca_realtime l, comentario_compartilhado o WHERE ";
 				$sql .= "c.cd_cliente = l.cd_cliente AND ";
 				$sql .= "o.cd_licenca = l.cd_licenca ";
