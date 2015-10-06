@@ -479,158 +479,159 @@ class Cores
             $retorno = $stmt->execute();
 
 
-  				// aba Retas
-				$bExiste = false;
+            // aba Retas
+            $bExiste = false;
 
-				$xml .= "SELECT nm_usuario
-                          FROM smartweb_cor_ferramenta
-                          WHERE nm_usuario = '" . $usuario . "'
-                          AND cd_empresa = " . $empresa;
-				$rs = $statementIntranet->executeQuery($xml);
-				if( $rs->next() )
+            $xml .= "SELECT nm_usuario
+                        FROM smartweb_cor_ferramenta
+                        WHERE nm_usuario = ?
+                        AND cd_empresa = ?";
+
+            $stmt = $this->conn->prepare($xml);
+            $stmt->bindValue(1,$usuario);
+            $stmt->bindValue(2,$empresa);
+            $stmt->execute();
+
+            if( $rs = $stmt->nextRowset() )
                     $bExiste = true;
 
 				if( !$bExiste )
                 {
 
 
-                    $xml .= "INSERT INTO smartweb_cor_ferramenta VALUES(";
-                    $xml .= "'" . $usuario . "'";
-                    $xml .= ",'" . $empresa . "'";
-                    $xml .= ",now()";
-                    $xml .= ",'" . $request->getParameter("ms") . "'";
-                    $xml .= ",'" . $request->getParameter("mr") . "'";
-                    $xml .= ",'" . $request->getParameter("mfs") . "'";
-                    $xml .= ",'" . $request->getParameter("mfr") . "'";
-                    $xml .= ",'" . $request->getParameter("ps") . "'";
-                    $xml .= ",'" . $request->getParameter("pr") . "'";
-                    $xml .= ",'" . $request->getParameter("fs") . "'";
-                    $xml .= ",'" . $request->getParameter("fr") . "'";
-                    $xml .= ",'" . $request->getParameter("es") . "'";
-                    $xml .= ",'" . $request->getParameter("er") . "'";
-                    $xml .= ",'" . $request->getParameter("f") . "'";
-                    $xml .= ",'" . $request->getParameter("r") . "'";
-                    $xml .= ",'" . $request->getParameter("fbr") . "'";
-                    $xml .= ",'" . $request->getParameter("fe") . "'";
-                    $xml .= ",'" . $request->getParameter("t") . "'";
-                    $xml .= ",'" . $request->getParameter("td") . "'";
-                    $xml .= ",'" . $request->getParameter("dh") . "'";
-                    $xml .= ",'" . $request->getParameter("dhd") . "'";
-                    $xml .= ",'" . $request->getParameter("hs") . "'";
-                    $xml .= ",'" . $request->getParameter("hr") . "'";
-                    $xml .= ",'" . $request->getParameter("hms") . "'";
-                    $xml .= ",'" . $request->getParameter("hmr") . "'";
-                    $xml .= ",'" . $request->getParameter("hmfs") . "'";
-                    $xml .= ",'" . $request->getParameter("hmfr") . "'";
-                    $xml .= ",'" . $request->getParameter("hvus") . "'";
-                    $xml .= ",'" . $request->getParameter("hvur") . "'";
-                    $xml .= ",'" . $request->getParameter("shs") . "'";
-                    $xml .= ",'" . $request->getParameter("shr") . "'";
-                    $xml .= ",'" . $request->getParameter("ns") . "'";
-                    $xml .= ",'" . $request->getParameter("nr") . "'";
-                    $xml .= ",'" . $request->getParameter("vy") . "'";
-                    $xml .= ",'" . $request->getParameter("vyd") . "'";
-                    $xml .= ",'" . $request->getParameter("el") . "'";
-                    $xml .= ",'" . $request->getParameter("re") . "'";
-                    $xml .= ")";
+                    $xml .= "INSERT INTO smartweb_cor_ferramenta VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                    $stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
+                    $stmt->bindValue(2, $empresa, \PDO::PARAM_STR);
+                    $stmt->bindValue(3, 'now()' , \PDO::PARAM_STR);
+                    $stmt->bindValue(4, $request->getParameter("ms") , \PDO::PARAM_STR);
+                    $stmt->bindValue(5, $request->getParameter("mr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(6, $request->getParameter("mfs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(7, $request->getParameter("mfr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(8, $request->getParameter("ps") , \PDO::PARAM_STR);
+                    $stmt->bindValue(9, $request->getParameter("pr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(10, $request->getParameter("fs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(11, $request->getParameter("fr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(12, $request->getParameter("es") , \PDO::PARAM_STR);
+                    $stmt->bindValue(13, $request->getParameter("er") , \PDO::PARAM_STR);
+                    $stmt->bindValue(14, $request->getParameter("f") , \PDO::PARAM_STR);
+                    $stmt->bindValue(15, $request->getParameter("r") , \PDO::PARAM_STR);
+                    $stmt->bindValue(16, $request->getParameter("fbr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(17, $request->getParameter("fe") , \PDO::PARAM_STR);
+                    $stmt->bindValue(18, $request->getParameter("t") , \PDO::PARAM_STR);
+                    $stmt->bindValue(19, $request->getParameter("td") , \PDO::PARAM_STR);
+                    $stmt->bindValue(20, $request->getParameter("dh") , \PDO::PARAM_STR);
+                    $stmt->bindValue(21, $request->getParameter("dhd") , \PDO::PARAM_STR);
+                    $stmt->bindValue(22, $request->getParameter("hs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(23, $request->getParameter("hr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(24, $request->getParameter("hms") , \PDO::PARAM_STR);
+                    $stmt->bindValue(25, $request->getParameter("hmr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(26, $request->getParameter("hmfs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(27, $request->getParameter("hmfr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(28, $request->getParameter("hvus") , \PDO::PARAM_STR);
+                    $stmt->bindValue(29,$request->getParameter("hvur") , \PDO::PARAM_STR);
+                    $stmt->bindValue(30, $request->getParameter("shs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(31, $request->getParameter("shr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(32, $request->getParameter("ns") , \PDO::PARAM_STR);
+                    $stmt->bindValue(33, $request->getParameter("nr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(34, $request->getParameter("vy") , \PDO::PARAM_STR);
+                    $stmt->bindValue(35, $request->getParameter("vyd") , \PDO::PARAM_STR);
+                    $stmt->bindValue(36, $request->getParameter("el") , \PDO::PARAM_STR);
+                    $stmt->bindValue(37, $request->getParameter("re") , \PDO::PARAM_STR);
+
                 }
                 else
                 {
 
-                    $xml .= "UPDATE smartweb_cor_ferramenta SET ";
-                    $xml .= "dh = now()";
-                    $xml .= ",magnetica_sup = '" . $request->getParameter("ms") . "'";
-                    $xml .= ",magnetica_res = '" . $request->getParameter("mr") . "'";
-                    $xml .= ",magnetica_fec_sup = '" . $request->getParameter("mfs") . "'";
-                    $xml .= ",magnetica_fec_res = '" . $request->getParameter("mfr") . "'";
-                    $xml .= ",projetada_sup = '" . $request->getParameter("ps") . "'";
-                    $xml .= ",projetada_res = '" . $request->getParameter("pr") . "'";
-                    $xml .= ",fixa_sup = '" . $request->getParameter("fs") . "'";
-                    $xml .= ",fixa_res = '" . $request->getParameter("fr") . "'";
-                    $xml .= ",evolucao_sup = '" . $request->getParameter("es") . "'";
-                    $xml .= ",evolucao_res = '" . $request->getParameter("er") . "'";
-                    $xml .= ",fibonacci = '" . $request->getParameter("f") . "'";
-                    $xml .= ",retracement = '" . $request->getParameter("r") . "'";
-                    $xml .= ",fibo_retracement = '" . $request->getParameter("fbr") . "'";
-                    $xml .= ",fibo_extension = '" . $request->getParameter("fe") . "'";
-                    $xml .= ",texto = '" . $request->getParameter("t") . "'";
-                    $xml .= ",texto_deslocado = '" . $request->getParameter("td") . "'";
-                    $xml .= ",data_hora = '" . $request->getParameter("dh") . "'";
-                    $xml .= ",data_hora_deslocada = '" . $request->getParameter("dhd") . "'";
-                    $xml .= ",horizontal_sup = '" . $request->getParameter("hs") . "'";
-                    $xml .= ",horizontal_res = '" . $request->getParameter("hr") . "'";
-                    $xml .= ",horizontal_mag_sup = '" . $request->getParameter("hms") . "'";
-                    $xml .= ",horizontal_mag_res = '" . $request->getParameter("hmr") . "'";
-                    $xml .= ",horizontal_mag_fec_sup = '" . $request->getParameter("hmfs") . "'";
-                    $xml .= ",horizontal_mag_fec_res	 = '" . $request->getParameter("hmfr") . "'";
-                    $xml .= ",horizontal_var_ult_sup = '" . $request->getParameter("hvus") . "'";
-                    $xml .= ",horizontal_var_ult_res = '" . $request->getParameter("hvur") . "'";
-                    $xml .= ",stop_horizontal_sup = '" . $request->getParameter("shs") . "'";
-                    $xml .= ",stop_horizontal_res = '" . $request->getParameter("shr") . "'";
-                    $xml .= ",reta_nivel_sup = '" . $request->getParameter("ns") . "'";
-                    $xml .= ",reta_nivel_res = '" . $request->getParameter("nr") . "'";
-                    $xml .= ",valor_y = '" . $request->getParameter("vy") . "'";
-                    $xml .= ",valor_y_deslocado = '" . $request->getParameter("vyd") . "'";
-                    $xml .= ",elipse = '" . $request->getParameter("el") . "'";
-                    $xml .= ",retangulo = '" . $request->getParameter("re") . "'";
-
-                    $xml .= " WHERE";
-                    $xml .= " nm_usuario = '" . $usuario . "' and cd_empresa = " . $empresa;
+                    $xml .= "UPDATE smartweb_cor_ferramenta SET dh = ?, magnetica_sup = ?, magnetica_res = ?, magnetica_fec_sup = ?, magnetica_fec_res = ?, projetada_sup = ?, projetada_res = ?, fixa_sup = ?
+                                                                ,fixa_res = ?, evolucao_sup = ?, evolucao_res = ?, fibonacci = ?, retracement = ?, fibo_retracement = ?, fibo_extension = ?, texto = ?, texto_deslocado = ?
+                                                                ,data_hora = ?, data_hora_deslocada = ?, horizontal_sup = ?, horizontal_res = ?, horizontal_mag_sup = ?, horizontal_mag_res = ?, horizontal_mag_fec_sup = ?
+                                                                ,horizontal_mag_fec_res	 = ?, horizontal_var_ult_sup = ?, horizontal_var_ult_res = ?, stop_horizontal_sup = ?, stop_horizontal_res = ?, reta_nivel_sup = ?
+                                                                ,reta_nivel_res = ?, valor_y = ?, valor_y_deslocado = ?, elipse = ?, retangulo = ?
+                                                            WHERE nm_usuario = ? AND cd_empresa = ?";
                 }
 
-				$retorno = $statementIntranet->executeUpdate($xml);
+                    $stmt->bindValue(1, 'now()' , \PDO::PARAM_STR);
+                    $stmt->bindValue(2, $request->getParameter("ms") , \PDO::PARAM_STR);
+                    $stmt->bindValue(3, $request->getParameter("mr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(4, $request->getParameter("mfs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(5, $request->getParameter("mfr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(6, $request->getParameter("ps") , \PDO::PARAM_STR);
+                    $stmt->bindValue(7, $request->getParameter("pr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(8, $request->getParameter("fs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(9, $request->getParameter("fr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(10, $request->getParameter("es") , \PDO::PARAM_STR);
+                    $stmt->bindValue(11, $request->getParameter("er") , \PDO::PARAM_STR);
+                    $stmt->bindValue(12, $request->getParameter("f") , \PDO::PARAM_STR);
+                    $stmt->bindValue(13, $request->getParameter("r") , \PDO::PARAM_STR);
+                    $stmt->bindValue(14, $request->getParameter("fbr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(15, $request->getParameter("fe") , \PDO::PARAM_STR);
+                    $stmt->bindValue(16, $request->getParameter("t") , \PDO::PARAM_STR);
+                    $stmt->bindValue(17, $request->getParameter("td") , \PDO::PARAM_STR);
+                    $stmt->bindValue(18, $request->getParameter("dh") , \PDO::PARAM_STR);
+                    $stmt->bindValue(19, $request->getParameter("dhd") , \PDO::PARAM_STR);
+                    $stmt->bindValue(20, $request->getParameter("hs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(21, $request->getParameter("hr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(22, $request->getParameter("hms") , \PDO::PARAM_STR);
+                    $stmt->bindValue(23, $request->getParameter("hmr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(24, $request->getParameter("hmfs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(25, $request->getParameter("hmfr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(26, $request->getParameter("hvus") , \PDO::PARAM_STR);
+                    $stmt->bindValue(27,$request->getParameter("hvur") , \PDO::PARAM_STR);
+                    $stmt->bindValue(28, $request->getParameter("shs") , \PDO::PARAM_STR);
+                    $stmt->bindValue(29, $request->getParameter("shr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(30, $request->getParameter("ns") , \PDO::PARAM_STR);
+                    $stmt->bindValue(31, $request->getParameter("nr") , \PDO::PARAM_STR);
+                    $stmt->bindValue(32, $request->getParameter("vy") , \PDO::PARAM_STR);
+                    $stmt->bindValue(33, $request->getParameter("vyd") , \PDO::PARAM_STR);
+                    $stmt->bindValue(34, $request->getParameter("el") , \PDO::PARAM_STR);
+                    $stmt->bindValue(35, $request->getParameter("re") , \PDO::PARAM_STR);
+                    $stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
+                    $stmt->bindValue(2, $empresa, \PDO::PARAM_STR);
 
+            $retorno = $stmt->execute();
 
-  				// aba Estudos
-				$bExiste = false;
+  			// aba Estudos
+            $bExiste = false;
 
 				$xml .= "SELECT nm_usuario FROM smartweb_cor_estudo WHERE nm_usuario = ? AND cd_empresa = ? ";
-				$rs = $statementIntranet->executeQuery($xml);
-				if( $rs->next() )
+                $stmt = $this->conn->prepare($xml);
+                $stmt->bindValue(1,$usuario);
+                $stmt->bindValue(2,$empresa);
+                $stmt->execute();
+
+                if( $rs = $stmt->nextRowset() )
                     $bExiste = true;
 
 				if( !$bExiste )
                 {
-                    $xml .= "INSERT INTO smartweb_cor_estudo VALUES(";
-                    $xml .= "'" . usuario . "'";
-                    $xml .= ",'" . empresa . "'";
-                    $xml .= ",now()";
-                    $xml .= ",'" . $request->getParameter("linha1") . "'";
-                    $xml .= ",'" . $request->getParameter("linha2") . "'";
-                    $xml .= ",'" . $request->getParameter("linha3") . "'";
-                    $xml .= ",'" . $request->getParameter("linha4") . "'";
-                    $xml .= ",'" . $request->getParameter("linha5") . "'";
-                    $xml .= ",'" . $request->getParameter("histograma_positivo") . "'";
-                    $xml .= ",'" . $request->getParameter("histograma_negativo") . "'";
-                    $xml .= ",'" . $request->getParameter("nivel1") . "'";
-                    $xml .= ",'" . $request->getParameter("nivel2") . "'";
-                    $xml .= ",'" . $request->getParameter("nivel3") . "'";
-                    $xml .= ",'" . $request->getParameter("fundo1") . "'";
-                    $xml .= ",'" . $request->getParameter("fundo2") . "'";
-                    $xml .= ")";
+                    $xml .= "INSERT INTO smartweb_cor_estudo VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                    $stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
+                    $stmt->bindValue(2, $empresa, \PDO::PARAM_STR);
+                    $stmt->bindValue(3, 'now()' , \PDO::PARAM_STR);
+                    $stmt->bindValue(4, $request->getParameter("linha1"), \PDO::PARAM_STR);
+                    $stmt->bindValue(5, $request->getParameter("linha2"), \PDO::PARAM_STR);
+                    $stmt->bindValue(6, $request->getParameter("linha3"), \PDO::PARAM_STR);
+                    $stmt->bindValue(7, $request->getParameter("linha4"), \PDO::PARAM_STR);
+                    $stmt->bindValue(8, $request->getParameter("linha5"), \PDO::PARAM_STR);
+                    $stmt->bindValue(9,  $request->getParameter("histograma_positivo"), \PDO::PARAM_STR);
+                    $stmt->bindValue(10, $request->getParameter("histograma_negativo"), \PDO::PARAM_STR);
+                    $stmt->bindValue(11, $request->getParameter("nivel1"), \PDO::PARAM_STR);
+                    $stmt->bindValue(12, $request->getParameter("nivel2"), \PDO::PARAM_STR);
+                    $stmt->bindValue(13, $request->getParameter("nivel3"), \PDO::PARAM_STR);
+                    $stmt->bindValue(14, $request->getParameter("fundo1"), \PDO::PARAM_STR);
+                    $stmt->bindValue(15, $request->getParameter("fundo2"), \PDO::PARAM_STR);
+
                 }
                 else
                 {
 
-                    $xml .= "UPDATE smartweb_cor_estudo SET ";
-                    $xml .= "dh = now()";
-                    $xml .= ",linha1 = '" . $request->getParameter("l1") . "'";
-                    $xml .= ",linha2 = '" . $request->getParameter("l2") . "'";
-                    $xml .= ",linha3 = '" . $request->getParameter("l3") . "'";
-                    $xml .= ",linha4 = '" . $request->getParameter("l4") . "'";
-                    $xml .= ",linha5 = '" . $request->getParameter("l5") . "'";
-                    $xml .= ",histograma_positivo = '" . $request->getParameter("hp") . "'";
-                    $xml .= ",histograma_negativo = '" . $request->getParameter("hn") . "'";
-                    $xml .= ",nivel1 = '" . $request->getParameter("n1") . "'";
-                    $xml .= ",nivel2 = '" . $request->getParameter("n2") . "'";
-                    $xml .= ",nivel3 = '" . $request->getParameter("n3") . "'";
-                    $xml .= ",fundo1 = '" . $request->getParameter("f1") . "'";
-                    $xml .= ",fundo2 = '" . $request->getParameter("f2") . "'";
-                    $xml .= " WHERE";
-                    $xml .= " nm_usuario = '" . $usuario . "' and cd_empresa = " . $empresa;
+                    $xml .= "UPDATE smartweb_cor_estudo SET dh = now(), linha1 = ?, linha2 = ?, linha3 = ?, linha4 = ?, linha5 = ?, histograma_positivo = ?, histograma_negativo = ?, nivel1 = ?, nivel2 = ?, nivel3 = ?
+                                                            ,fundo1 = ?, fundo2 = ? WHERE nm_usuario = ? AND cd_empresa = ?";
                 }
 
-				$retorno = $statementIntranet->executeUpdate($xml);
+                $retorno = $stmt->execute();
 
   				$xml = "<retorno>" . $retorno . "</retorno>";
 		}
