@@ -30,6 +30,20 @@ $posicao = strpos($ativo, 'AED_');
 
 echo substr($ativo, $posicao);
 
+echo "<hr />";
+$data = new DateTime();
+
+$hora = $data->format('His');
+
+echo "Hora atual: ". $hora;
+echo "<br />Minutos: ".$data->format('i');
+
+echo "<h4>Utilizando minha classe </h4>";
+
+$dh = new \Classes\Data();
+
+echo $dh->getHora().':'.$dh->getMinuto().':'.$dh->getSegundo();
+
 
 
 
