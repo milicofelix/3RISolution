@@ -44,6 +44,33 @@ $dh = new \Classes\Data();
 
 echo $dh->getHora().':'.$dh->getMinuto().':'.$dh->getSegundo();
 
+$matches = '< Vamos que vamos!><';
+echo "<br />";
+echo preg_replace("/^</", "abretag", $matches);
+
+if(preg_match('/<$/',$matches)){
+    echo "OK";
+}else{
+    echo "Nok";
+}
+echo "<hr/>";
+$alerta;
+$alerta2 = [1,2,3];
+
+$alerta = $alerta2;//['atençao','cuidado','perigo'];
+$alerta2 = ['Brasil','Argentina','Canadá'];
+echo "<pre>";
+print_r($alerta);
+echo "<hr/>";
+print_r($alerta2);
+
+        $texto = "banana,maçã,laranja";
+
+		$frutas[] = explode(",",$texto);
+        print_r($frutas);
+		echo $frutas[0][0]; //imprime banana
+       // echo $frutas[1]; //imprime maçã
+		//echo $frutas[2]; //imprime laranja
 
 
 

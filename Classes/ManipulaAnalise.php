@@ -194,17 +194,7 @@ public function getAnalises($ultDH, $listLicAnalises = array(), $bTemAnaliseGrau
             //e.printStackTrace();
             echo "Erro ao tentar recuperar Analises";
         }
-//		finally
-//		{
-//            try
-//            {
-//                $rs->close();
-//            }
-//            catch(\ErrorException $e)
-//			{
-//                //e.printStackTrace();
-//            }
-//		}
+
 	}
 
 }
