@@ -64,14 +64,26 @@ print_r($alerta);
 echo "<hr/>";
 print_r($alerta2);
 
-        $texto = "banana,maçã,laranja";
-
-		$frutas[] = explode(",",$texto);
-        print_r($frutas);
-		echo $frutas[0][0]; //imprime banana
+//        $texto = "banana,maçã,laranja";
+//
+//		$frutas[] = explode(",",$texto);
+//        print_r($frutas);
+//		echo $frutas[0][0]; //imprime banana
        // echo $frutas[1]; //imprime maçã
 		//echo $frutas[2]; //imprime laranja
 
+$licenca = "Adriano Felix de Freitas, nasceu em 1981, logo o mesmo tem 34 anos de idade, e é Desenvolvedor web desde 2006";
+$listLicencas = array();
+
+foreach( explode(',',$licenca) as $l )
+{
+
+    $listLicencas[] = $l;
+
+
+}
+
+print_r($listLicencas);
 
 
 

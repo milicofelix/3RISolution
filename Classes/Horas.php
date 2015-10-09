@@ -11,7 +11,7 @@ namespace Classes;
 
 class Horas
 {
-    private function getHoraInt()
+    public function getHoraInt()
 {
     $dh = new Data();
 

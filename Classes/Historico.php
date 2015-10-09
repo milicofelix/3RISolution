@@ -15,10 +15,11 @@ class Historico extends GraficoServer
 {
     private $conn;
     public $listAC = array();
+    private $dt;
 
     public function __construct(){
-
-        $this->conn         = Conexao::getInstance();
+        $this->conn = Conexao::getInstance();
+        $this->dt   = new Horas();
     }
 
     private function getHistoricosCorrigidos($ultDH)
@@ -57,9 +58,9 @@ class Historico extends GraficoServer
         {
             $l = currentTimeMillis();
 
-        	//TreeMap<String,Barra> tmHistorico = mapHistoricos.get(ativo + (periodo > 0 ? "." . String.valueOf(periodo) : ""));
+        	//TreeMap<String,Barra> $tmHistorico = mapHistoricos.get($ativo . (periodo > 0 ? "." . String.valueOf(periodo) : ""));
 
-			$xml .= "<serie id=\"" . $ativo . "\" hh=\"" . getHoraInt() . "\">";
+			$xml .= "<serie id=\"" . $ativo . "\" hh=\"" . $this->dt->getHoraInt() . "\">";
 
 			$startBarra = -1; // barra inicial que será enviada ao cliente
 
@@ -167,16 +168,16 @@ class Historico extends GraficoServer
                 $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
                           from historico_ajustado_5min
                           where codigo = '" . $ativo . "' and dh::date <> now()::date ";
-                $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min_hoje where codigo = '" . ativo . "' and dh::date = now()::date ";
-                $sql .= "ORDER BY data DESC LIMIT " . maxBarras;
+                $sql .= "UNION ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min_hoje where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
-            else if( periodo == 1 )
+            else if( $periodo == 1 )
             {
-                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft from intra_diario where codigo = '" . ativo . "' and dh::date = now()::date ";
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft from intra_diario where codigo = '" . $ativo . "' and dh::date = now()::date ";
                 $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_1min where codigo = '" . ativo . "' ";
-                $sql .= "ORDER BY data DESC LIMIT " . maxBarras;
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_1min where codigo = '" . $ativo . "' ";
+                $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
 
 
@@ -186,7 +187,7 @@ class Historico extends GraficoServer
 
 			$rs->afterLast(); //Alterar depois##################################################################
 
-			//TreeMap<String,Barra> tmHistorico = new TreeMap<String,Barra>();   Alterar depois##################################################################
+			//TreeMap<String,Barra> $tmHistorico = new TreeMap<String,Barra>();   Alterar depois##################################################################
 
 			while( $rs->previous() )//Alterar depois##################################################################
             {
@@ -212,11 +213,11 @@ class Historico extends GraficoServer
            		$b->vft      = $rs->getFloat(8);
 
            		// faz data e hora como chave
-           		//tmHistorico.put(String.valueOf($b->data) + ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") + String.valueOf($b->hora), b);//Alterar depois##################################################################
+           		//$tmHistorico.put(String.valueOf($b->data) + ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") + String.valueOf($b->hora), b);//Alterar depois##################################################################
            	}
 
-//           	if( tmHistorico.size() > 0 )
-//                mapHistoricos.put(ativo + (periodo > 0 ? "." . String.valueOf(periodo) : ""), tmHistorico);//Alterar depois##################################################################
+//           	if( $tmHistorico.size() > 0 )
+//                mapHistoricos.put($ativo . (periodo > 0 ? "." . String.valueOf(periodo) : ""), $tmHistorico);//Alterar depois##################################################################
 		}
         catch(\PDOException $e)
 		{
@@ -230,83 +231,82 @@ class Historico extends GraficoServer
 	{
         //Connection connectionCotacoes = conexaoBancoCotacoes();
 
-        TreeMap<String,Barra> tmHistorico = new TreeMap<String,Barra>();
+        //TreeMap<String,Barra> tmHistorico = new TreeMap<String,Barra>();
+        $tmHistorico = array();
 
 		if( !conexaoBancoCotacoes() )
         {
             echo "Nao pude recuperar Historico Banco por nao conseguir conexao com o banco COTACOES";
-            return tmHistorico;
+            return $tmHistorico;
         }
 
-		Statement statementCotacoes = null;
-		ResultSet $rs = null;
+		$statementCotacoes = null;
+		$rs = null;
 
 		try
         {
-            int maxBarras = 2600; // para diário
-        	if( periodo == 1 )
-                maxBarras = 2160;  // aprox 4 dias
-            else if( periodo == 5 )
-                maxBarras = 1620;  // aprox 15 dias
-            else if( periodo == 15 )
-                maxBarras = 1584;  // aprox 44 dias
+            $maxBarras = 2600; // para diário
+        	if( $periodo == 1 )
+                $maxBarras = 2160;  // aprox 4 dias
+            else if( $periodo == 5 )
+                $maxBarras = 1620;  // aprox 15 dias
+            else if( $periodo == 15 )
+                $maxBarras = 1584;  // aprox 44 dias
 
-        	String sql = null;
-        	if( ativo.startsWith("AED_") ) // apenas para avanço e declínio
+        	$sql = null;
+        	if( $ativo->startsWith("AED_") ) // apenas para avanço e declínio
             {
-                String indice = ativo.substring(ativo.indexOf("_")+1);
-        		sql = "SELECT 0 as abertura, 0 as maxima, desceram as minima, subiram as ultima, 0 as volume, 0 as negocios, data, 0 as vft from indices_bovespa_diario where codigo = '" . indice + "' order by data desc limit " . maxBarras;
+                $indice = $ativo.substring($ativo->indexOf("_")+1);
+        		$sql = "SELECT 0 as abertura, 0 as maxima, desceram as minima, subiram as ultima, 0 as volume, 0 as negocios, data, 0 as vft from indices_bovespa_diario where codigo = '" . indice + "' order by data desc limit " . $maxBarras;
         	}
             else if( periodo == 0 ) // diário
             {
-                //sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario where codigo = '" . ativo + "' order by dt desc limit " . maxBarras;
-                sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario where codigo = '" . ativo + "' and dt <> now()::date ";
-                sql += "union ";
-                sql += "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario_hoje where codigo = '" . ativo + "' and dt = now()::date ";
-                sql += "ORDER BY data DESC LIMIT " . maxBarras;
+                //$sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario where codigo = '" . $ativo . "' order by dt desc limit " . $maxBarras;
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario where codigo = '" . $ativo . "' and dt <> now()::date ";
+                $sql .= "union ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario_hoje where codigo = '" . $ativo . "' and dt = now()::date ";
+                $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
             else if( periodo == 15 )
             {
-                //sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min where codigo = '" . ativo + "' order by dh desc limit " . maxBarras;
-                sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min where codigo = '" . ativo + "' and dh::date <> now()::date ";
-                sql += "union ";
-                sql += "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min_hoje where codigo = '" . ativo + "' and dh::date = now()::date ";
-                sql += "ORDER BY data DESC LIMIT " . maxBarras;
+                //$sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min where codigo = '" . $ativo . "' order by dh desc limit " . $maxBarras;
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min where codigo = '" . $ativo . "' and dh::date <> now()::date ";
+                $sql .= "union ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min_hoje where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
             else if( periodo == 5 )
             {
-                sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min where codigo = '" . ativo + "' and dh::date <> now()::date ";
-                sql += "union ";
-                sql += "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min_hoje where codigo = '" . ativo + "' and dh::date = now()::date ";
-                sql += "ORDER BY data DESC LIMIT " . maxBarras;
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min where codigo = '" . $ativo . "' and dh::date <> now()::date ";
+                $sql .= "union ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min_hoje where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
             else if( periodo == 1 )
             {
-                sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft from intra_diario where codigo = '" . ativo + "' and dh::date = now()::date ";
-                sql += "union ";
-                sql += "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_1min where codigo = '" . ativo + "' ";
-                sql += "ORDER BY data DESC LIMIT " . maxBarras;
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft from intra_diario where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                $sql .= "union ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_1min where codigo = '" . $ativo . "' ";
+                $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
 
-        	statementCotacoes = connectionCotacoes.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-        	$rs = statementCotacoes.executeQuery(sql);
+        	$rs = statementCotacoes.executeQuery($sql);
 
 			$rs->afterLast();
 
 			while( $rs->previous() )
             {
-                Barra b = new Barra();
+                $b = new Barra();
 
            		if( periodo == 0 )
                 {
-                    $b->data = Integer.pa$rseInt($rs->getString(7).replaceAll("-", ""));
+                    $b->data = $rs->getString(7)->replaceAll("-", "");
                     $b->hora = 200000; //Integer.pa$rseInt(horaFimPregao);
                 }
                 else
                 {
-                    $b->data = Integer.pa$rseInt($rs->getString(7).substring(0, 10).replaceAll("-", ""));
-                    $b->hora = Integer.pa$rseInt($rs->getString(7).substring(11, 19).replaceAll(":", ""));;
+                    $b->data = $rs->getString(7)->substring(0, 10).replaceAll("-", "");
+                    $b->hora = $rs->getString(7)->substring(11, 19).replaceAll(":", "");
                 }
 
            		$b->abertura = $rs->getFloat(1);
@@ -318,144 +318,95 @@ class Historico extends GraficoServer
            		$b->vft      = $rs->getFloat(8);
 
            		// faz data e hora como chave
-           		tmHistorico.put(String.valueOf($b->data) + ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") + String.valueOf($b->hora), b);
+           		$tmHistorico.put(String.valueOf($b->data) . ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") . String.valueOf($b->hora), $b);
            	}
 
-           	//if( tmHistorico.size() > 0 )
-           		//mapHistoricos.put(ativo + (periodo > 0 ? "." . String.valueOf(periodo) : ""), tmHistorico);
+           	//if( $tmHistorico.size() > 0 )
+           		//mapHistoricos.put($ativo . (periodo > 0 ? "." . String.valueOf(periodo) : ""), $tmHistorico);
 		}
-        catch(SQLException e)
+        catch(\PDOException $e)
 		{
             //e.printStackTrace();
             echo "Erro ao tentar recuperar historico de ativo";
         }
-		finally
-		{
-            try
-            {
-                $rs->close();
-            }
-            catch(Exception e)
-			{
-                e.printStackTrace();
-            }
 
-			try
-            {
-                statementCotacoes.close();
-            }
-            catch(Exception e)
-			{
-                //e.printStackTrace();
-            }
-
-			//try
-			//{
-			//	connectionCotacoes.close();
-			//}
-			//catch(Exception e)
-			//{
-			//	e.printStackTrace();
-			//}
-		}
-
-		return tmHistorico;
+		return $tmHistorico;
 	}
 
-    private void procuraHistoricosCorrigidos()
+    private function procuraHistoricosCorrigidos()
 {
 echo "SERVIDOR="+servidorLocal);
-		if( (servidorLocal.equals("localhost") && !conexaoBancoIntranetRemoto()) || !conexaoBancoIntranet() )
-        {
-            echo "Nao pude recuperar Ativos Corrigidos por nao conseguir conexao com o banco INTRANET";
-        }
+//		if( (servidorLocal.equals("localhost") && !conexaoBancoIntranetRemoto()) || !conexaoBancoIntranet() )
+//        {
+//            echo "Nao pude recuperar Ativos Corrigidos por nao conseguir conexao com o banco INTRANET";
+//        }
 
-		ResultSet $rs = null;
-		Statement statement = null;
+		$rs = null;
+		$statement = null;
 
 		try
         {
-            statement = servidorLocal.equals("localhost") ? connectionIntranetRemoto.createStatement() : connectionIntranet.createStatement();
+            //statement = servidorLocal.equals("localhost") ? connectionIntranetRemoto.createStatement() : connectionIntranet.createStatement();
 
             //if( connectionIntranet != null && !connectionIntranet.isClosed() && statement != null )
             {
-                String sql = "select codigo, corrigido from smartweb_cadastro_ativo where corrigido is not null ";
+                String $sql = "select codigo, corrigido from smartweb_cadastro_ativo where corrigido is not null ";
 				if( ultDHAtivoCorrigido != null )
-                    sql += "and corrigido > '" . ultDHAtivoCorrigido + "' ";
-				sql += "order by corrigido asc";
+                    $sql .= "and corrigido > '" . ultDHAtivoCorrigido + "' ";
+				$sql .= "order by corrigido asc";
 
-echo "SQL="+sql);
+echo "$sql=".$sql);
 
-				$rs = statement.executeQuery(sql);
+				$rs = statement.executeQuery($sql);
 
 				while( $rs->next() )
                 {
-                    long dh = 0 ;
+                    $dh = 0 ;
 					try
                     {
-                        ultDHAtivoCorrigido = $rs->getString("corrigido";
-                        dh = new SimpleDateFormat("yyyy-MM-dd H:m:s").pa$rse(ultDHAtivoCorrigido).getTime();
+                        $ultDHAtivoCorrigido = $rs->corrigido;
+                        $dh = new SimpleDateFormat("yyyy-MM-dd H:m:s").parse(ultDHAtivoCorrigido).getTime();
                     }
-                    catch(Pa$rseException e)
-					{ e.printStackTrace(); }
+                    catch(\PDOException $e)
+					{ $e->getTraceAsString(); }
 
-					if( listAC.size() == tamanhoListAC ) // aumenta a capacidade em 10% se necessário
+					if( count($listAC) == $tamanhoListAC ) // aumenta a capacidade em 10% se necessário
                     {
-                        tamanhoListAC += (tamanhoListAC / 10);
-                        listAC.ensureCapacity(tamanhoListAC);
+                        $tamanhoListAC += (tamanhoListAC / 10);
+                        $listAC.ensureCapacity($tamanhoListAC);
                     }
 
-					if( mapAC.containsKey($rs->getString("codigo")) )
+					if( $mapAC->containsKey($rs->getString("codigo")) )
                     {
-                        listAC.set(mapAC.get($rs->getString("codigo")), new AtivoCorrigido(dh, $rs->getString("codigo")));
+                        $listAC->set(mapAC.get($rs->getString("codigo")), new AtivoCorrigido($dh, $rs->getString("codigo")));
                     }
                     else
                     {
-                        listAC.add(new AtivoCorrigido(dh, $rs->getString("codigo")));
-                        mapAC.put($rs->getString("codigo"), listAC.size()-1);
+                        $listAC->add(new AtivoCorrigido($dh, $rs->getString("codigo")));
+                        $mapAC->put($rs->getString("codigo"), $listAC.size()-1);
                     }
 				}
 
-				if( listAC.size() > 0 )
+				if( count($listAC) > 0 )
                 {
-                    Collections.sort(listAC);
+                    Collections.sort($listAC);
 
                     // mapeia novamente os ativos para não repetirem na lista depois
-                    mapAC.clear();
-                    for( int i = 0; i < listAC.size(); i++ )
-						mapAC.put(listAC.get(i).codigo, i);
+                    $mapAC->clear();
+                    for( $i = 0; $i < count($listAC); $i++ )
+						$mapAC->put($listAC.get($i)->codigo, $i);
 
-					echo "SizeAC:" . listAC.size());
-					echo "Ativo:" . listAC.get(0).codigo + " DH:" . new SimpleDateFormat("yyyy-MM-dd H:m:s").format(new Date(listAC.get(0).dh)));
+					echo "SizeAC:" . count($listAC);
+					echo "Ativo:" . $listAC->get(0)->codigo . " DH:" . new SimpleDateFormat("yyyy-MM-dd H:m:s").format(new Date($listAC->get(0).$dh));
 				}
 			}
             //else
             //echo "Nao pude recuperar Ativos Corrigidos por nao estar conectado ao banco Intranet";
         }
-        catch(SQLException e)
+        catch(\PDOException $e)
 		{
-            e.printStackTrace();
+            $e->getTraceAsString();
             echo "Erro ao tentar recuperar Ativos Corrigidos";
         }
-		finally
-		{
-            try
-            {
-                $rs->close();
-            }
-            catch(Exception e)
-			{
-                //e.printStackTrace();
-            }
-
-			try
-            {
-                statement.close();
-            }
-            catch(Exception e)
-			{
-                //e.printStackTrace();
-            }
-		}
 	}
 }
