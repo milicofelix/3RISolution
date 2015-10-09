@@ -114,7 +114,7 @@ public function getAnalises($ultDH, $listLicAnalises = array(), $bTemAnaliseGrau
                 $stmt->execute();
                 $result = $stmt->fetchObject();
 
-				foreach($result as $rs)
+                foreach($result as $rs)
                 {
                     $analise = new Analise();
 

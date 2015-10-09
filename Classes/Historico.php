@@ -56,9 +56,9 @@ class Historico extends GraficoServer
 
         if( count($tmHistorico) > 0 )
         {
-            $l = currentTimeMillis();
+            $l = $this->currentTimeMillis();
 
-        	//TreeMap<String,Barra> $tmHistorico = mapHistoricos.get($ativo . (periodo > 0 ? "." . String.valueOf(periodo) : ""));
+        	//TreeMap<String,Barra> $tmHistorico = mapHistoricos.get($ativo . ($periodo > 0 ? "." . String.valueOf($periodo) : ""));
 
 			$xml .= "<serie id=\"" . $ativo . "\" hh=\"" . $this->dt->getHoraInt() . "\">";
 
@@ -93,7 +93,7 @@ class Historico extends GraficoServer
 
 
 			if( $this->bLog )
-                echo "Tempo de consulta no Hashtable para " . $ativo . ($periodo > 0 ? "." . $periodo : "") . ": " . (currentTimeMillis() - l) . "ms";
+                echo "Tempo de consulta no Hashtable para " . $ativo . ($periodo > 0 ? "." . $periodo : "") . ": " . ($this->currentTimeMillis() - $l) . "ms";
         }
 
         return $xml;
@@ -133,91 +133,109 @@ class Historico extends GraficoServer
                 $maxBarras = 1584;  // aprox 44 dias
 
         	$sql = null;
-        	if( $ativo->startsWith("AED_") ) // apenas para avanço e declínio
+        	if( preg_match('/^AED_/',$ativo)) // apenas para avanço e declínio
             {
                 $indice = substr($ativo, strpos($ativo,"_")+1);
         		$sql = "SELECT 0 as abertura, 0 as maxima, desceram as minima, subiram as ultima, 0 as volume, 0 as negocios, data, 0 as vft
                           FROM indices_bovespa_diario
-                          WHERE codigo = '" . $indice . "' ORDER BY data desc limit " . $maxBarras;
+                          WHERE codigo = ? ORDER BY data DESC LIMIT " . $maxBarras;
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(1, $indice, \PDO::PARAM_INT);
+                $stmt->execute();
 
         	}
             else if( $periodo == 0 ) // diário
             {
                 $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft
-                          from historico_ajustado_diario
-                          where codigo = '" . $ativo . "' and dt <> now()::date ";
-                $sql .= "union ";
+                          FROM historico_ajustado_diario
+                          WHERE codigo = ? AND dt <> now()::date ";
+                $sql .= "UNION ";
                 $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft
-                          from historico_ajustado_diario_hoje
-                          where codigo = '" . $ativo . "' and dt = now()::date ";
+                          FROM historico_ajustado_diario_hoje
+                          WHERE codigo = ? AND dt = now()::date ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
+
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(1, $ativo, \PDO::PARAM_INT);
+                $stmt->bindValue(2, $ativo, \PDO::PARAM_INT);
+                $stmt->execute();
             }
             else if( $periodo == 15 )
             {
                 $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
-                          from historico_ajustado_15min
-                          where codigo = '" . $ativo . "' and dh::date <> now()::date ";
-                $sql .= "union ";
+                          FROM historico_ajustado_15min
+                          WHERE codigo = ? AND dh::date <> now()::date ";
+                $sql .= "UNION ";
                 $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
-                          from historico_ajustado_15min_hoje
-                          where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                          FROM historico_ajustado_15min_hoje
+                          WHERE codigo = ? AND dh::date = now()::date ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
+
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(1, $ativo, \PDO::PARAM_INT);
+                $stmt->bindValue(2, $ativo, \PDO::PARAM_INT);
+                $stmt->execute();
             }
             else if( $periodo == 5 )
             {
                 $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
-                          from historico_ajustado_5min
-                          where codigo = '" . $ativo . "' and dh::date <> now()::date ";
+                          FROM historico_ajustado_5min
+                          WHERE codigo = ? AND dh::date <> now()::date ";
                 $sql .= "UNION ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min_hoje where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft FROM historico_ajustado_5min_hoje WHERE codigo = ? AND dh::date = now()::date ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
+
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(1, $ativo, \PDO::PARAM_INT);
+                $stmt->bindValue(2, $ativo, \PDO::PARAM_INT);
+                $stmt->execute();
             }
             else if( $periodo == 1 )
             {
-                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft from intra_diario where codigo = '" . $ativo . "' and dh::date = now()::date ";
-                $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_1min where codigo = '" . $ativo . "' ";
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft FROM intra_diario WHERE codigo = ? AND dh::date = now()::date ";
+                $sql .= "UNION ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft FROM historico_ajustado_1min WHERE codigo = ? ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
 
-
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(1,$ativo);
+            $stmt->bindValue(1, $ativo, \PDO::PARAM_INT);
+            $stmt->bindValue(2, $ativo, \PDO::PARAM_INT);
             $stmt->execute();
 
-			$rs->afterLast(); //Alterar depois##################################################################
+            $result = $stmt->fetchAll();
 
 			//TreeMap<String,Barra> $tmHistorico = new TreeMap<String,Barra>();   Alterar depois##################################################################
 
-			while( $rs->previous() )//Alterar depois##################################################################
+			foreach( $result as $rs)
             {
                 $b = new Barra();
 
            		if( $periodo == 0 )
                 {
                     $b->data = $rs->getString(7)->replaceAll("-", ""); //Alterar depois##################################################################
-                    $b->hora = 200000; //Integer.pa$rseInt(horaFimPregao);
+                    $b->hora = 200000;
                 }
                 else
                 {
-                    $b->data = $rs->getString(7)->substring(0, 10)->replaceAll("-", "");//Alterar depois##################################################################
-                    $b->hora = $rs->getString(7)->substring(11, 19)->replaceAll(":", "");//Alterar depois##################################################################
+                    $b->data = str_replace('-','',substr($rs[7],0,10));
+                    $b->hora = str_replace(':','',substr($rs[7],11,19));
                 }
-                //Alterar depois##################################################################
-           		$b->abertura = $rs->getFloat(1);
-           		$b->maxima   = $rs->getFloat(2);
-           		$b->minima   = $rs->getFloat(3);
-           		$b->ultima   = $rs->getFloat(4);
-           		$b->volume   = $rs->getFloat(5);
-           		$b->negocios = $rs->getFloat(6);
-           		$b->vft      = $rs->getFloat(8);
+
+           		$b->abertura = $rs[1];
+           		$b->maxima   = $rs[2];
+           		$b->minima   = $rs[3];
+           		$b->ultima   = $rs[4];
+           		$b->volume   = $rs[5];
+           		$b->negocios = $rs[6];
+           		$b->vft      = $rs[8];
 
            		// faz data e hora como chave
            		//$tmHistorico.put(String.valueOf($b->data) + ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") + String.valueOf($b->hora), b);//Alterar depois##################################################################
            	}
 
 //           	if( $tmHistorico.size() > 0 )
-//                mapHistoricos.put($ativo . (periodo > 0 ? "." . String.valueOf(periodo) : ""), $tmHistorico);//Alterar depois##################################################################
+//                mapHistoricos.put($ativo . ($periodo > 0 ? "." . String.valueOf($periodo) : ""), $tmHistorico);//Alterar depois##################################################################
 		}
         catch(\PDOException $e)
 		{
@@ -234,7 +252,7 @@ class Historico extends GraficoServer
         //TreeMap<String,Barra> tmHistorico = new TreeMap<String,Barra>();
         $tmHistorico = array();
 
-		if( !conexaoBancoCotacoes() )
+		if( !$this->conn )
         {
             echo "Nao pude recuperar Historico Banco por nao conseguir conexao com o banco COTACOES";
             return $tmHistorico;
@@ -256,73 +274,96 @@ class Historico extends GraficoServer
         	$sql = null;
         	if( $ativo->startsWith("AED_") ) // apenas para avanço e declínio
             {
-                $indice = $ativo.substring($ativo->indexOf("_")+1);
-        		$sql = "SELECT 0 as abertura, 0 as maxima, desceram as minima, subiram as ultima, 0 as volume, 0 as negocios, data, 0 as vft from indices_bovespa_diario where codigo = '" . indice + "' order by data desc limit " . $maxBarras;
+                $indice = (substr_count($ativo, "_")+1);
+        		$sql = "SELECT 0 as abertura, 0 as maxima, desceram as minima, subiram as ultima, 0 as volume, 0 as negocios, data, 0 as vft
+                          FROM indices_bovespa_diario
+                          WHERE codigo = '" . $indice . "' order by data desc limit " . $maxBarras;
         	}
-            else if( periodo == 0 ) // diário
+            else if( $periodo == 0 ) // diário
             {
-                //$sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario where codigo = '" . $ativo . "' order by dt desc limit " . $maxBarras;
-                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario where codigo = '" . $ativo . "' and dt <> now()::date ";
-                $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft from historico_ajustado_diario_hoje where codigo = '" . $ativo . "' and dt = now()::date ";
+                //$sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft FROM historico_ajustado_diario WHERE codigo = '" . $ativo . "' order by dt desc limit " . $maxBarras;
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft
+                          FROM historico_ajustado_diario
+                          WHERE codigo = '" . $ativo . "'
+                          AND dt <> now()::date ";
+                $sql .= "UNION ";
+
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dt as data, vft
+                          FROM historico_ajustado_diario_hoje
+                          WHERE codigo = '" . $ativo . "'
+                          AND dt = now()::date ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
-            else if( periodo == 15 )
+            else if( $periodo == 15 )
             {
-                //$sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min where codigo = '" . $ativo . "' order by dh desc limit " . $maxBarras;
-                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min where codigo = '" . $ativo . "' and dh::date <> now()::date ";
-                $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_15min_hoje where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                //$sql = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft FROM historico_ajustado_15min WHERE codigo = '" . $ativo . "' order by dh desc limit " . $maxBarras;
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft FROM historico_ajustado_15min WHERE codigo = '" . $ativo . "' and dh::date <> now()::date ";
+                $sql .= "UNION ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
+                          FROM historico_ajustado_15min_hoje
+                          WHERE codigo = '" . $ativo . "'
+                          AND dh::date = now()::date ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
-            else if( periodo == 5 )
+            else if( $periodo == 5 )
             {
-                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min where codigo = '" . $ativo . "' and dh::date <> now()::date ";
-                $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_5min_hoje where codigo = '" . $ativo . "' and dh::date = now()::date ";
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
+                          FROM historico_ajustado_5min
+                          WHERE codigo = '" . $ativo . "'
+                          AND dh::date <> now()::date ";
+                $sql .= "UNION ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
+                          FROM historico_ajustado_5min_hoje
+                          WHERE codigo = '" . $ativo . "'
+                          AND dh::date = now()::date ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
-            else if( periodo == 1 )
+            else if( $periodo == 1 )
             {
-                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft from intra_diario where codigo = '" . $ativo . "' and dh::date = now()::date ";
-                $sql .= "union ";
-                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft from historico_ajustado_1min where codigo = '" . $ativo . "' ";
+                $sql  = "SELECT abertura, maxima, minima, ultima, volume, contratos as negocios, dh as data, vft
+                          FROM intra_diario
+                          WHERE codigo = '" . $ativo . "'
+                          AND dh::date = now()::date ";
+                $sql .= "UNION ";
+                $sql .= "SELECT abertura, maxima, minima, ultima, volume, negocios, dh as data, vft
+                          FROM historico_ajustado_1min
+                          WHERE codigo = '" . $ativo . "' ";
                 $sql .= "ORDER BY data DESC LIMIT " . $maxBarras;
             }
 
-        	$rs = statementCotacoes.executeQuery($sql);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll();
 
-			$rs->afterLast();
-
-			while( $rs->previous() )
+            foreach($result as $rs)
             {
                 $b = new Barra();
 
-           		if( periodo == 0 )
+           		if( $periodo == 0 )
                 {
-                    $b->data = $rs->getString(7)->replaceAll("-", "");
+                    $b->data = str_replace('-','',substr($rs[7],0,10));
                     $b->hora = 200000; //Integer.pa$rseInt(horaFimPregao);
                 }
                 else
                 {
-                    $b->data = $rs->getString(7)->substring(0, 10).replaceAll("-", "");
-                    $b->hora = $rs->getString(7)->substring(11, 19).replaceAll(":", "");
+                    $b->data = str_replace('-','',substr($rs[7],0,10));
+                    $b->hora = str_replace(':','',substr($rs[7],11,19));
                 }
 
-           		$b->abertura = $rs->getFloat(1);
-           		$b->maxima   = $rs->getFloat(2);
-           		$b->minima   = $rs->getFloat(3);
-           		$b->ultima   = $rs->getFloat(4);
-           		$b->volume   = $rs->getFloat(5);
-           		$b->negocios = $rs->getFloat(6);
-           		$b->vft      = $rs->getFloat(8);
+           		$b->abertura = $rs[1];
+           		$b->maxima   = $rs[2];
+           		$b->minima   = $rs[3];
+           		$b->ultima   = $rs[4];
+           		$b->volume   = $rs[5];
+           		$b->negocios = $rs[6];
+           		$b->vft      = $rs[8];
 
            		// faz data e hora como chave
-           		$tmHistorico.put(String.valueOf($b->data) . ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") . String.valueOf($b->hora), $b);
+           		$tmHistorico->put($b->data . ($b->hora < 1000 ? "000" : $b->hora < 10000 ? "00" : $b->hora < 100000 ? "0" : "") . $b->hora, $b);
            	}
 
            	//if( $tmHistorico.size() > 0 )
-           		//mapHistoricos.put($ativo . (periodo > 0 ? "." . String.valueOf(periodo) : ""), $tmHistorico);
+           		//mapHistoricos.put($ativo . ($periodo > 0 ? "." . String.valueOf($periodo) : ""), $tmHistorico);
 		}
         catch(\PDOException $e)
 		{
@@ -335,7 +376,7 @@ class Historico extends GraficoServer
 
     private function procuraHistoricosCorrigidos()
 {
-echo "SERVIDOR="+servidorLocal);
+//echo "SERVIDOR=".$servidorLocal;
 //		if( (servidorLocal.equals("localhost") && !conexaoBancoIntranetRemoto()) || !conexaoBancoIntranet() )
 //        {
 //            echo "Nao pude recuperar Ativos Corrigidos por nao conseguir conexao com o banco INTRANET";
@@ -350,22 +391,24 @@ echo "SERVIDOR="+servidorLocal);
 
             //if( connectionIntranet != null && !connectionIntranet.isClosed() && statement != null )
             {
-                String $sql = "select codigo, corrigido from smartweb_cadastro_ativo where corrigido is not null ";
-				if( ultDHAtivoCorrigido != null )
-                    $sql .= "and corrigido > '" . ultDHAtivoCorrigido + "' ";
-				$sql .= "order by corrigido asc";
+                $sql = "select codigo, corrigido FROM smartweb_cadastro_ativo WHERE corrigido is not null ";
+				if( $this->ultDHAtivoCorrigido != null )
+                    $sql .= "and corrigido > '" . $this->ultDHAtivoCorrigido . "' ";
+				    $sql .= "order by corrigido asc";
 
-echo "$sql=".$sql);
+                echo "$sql=".$sql;
 
-				$rs = statement.executeQuery($sql);
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->fetchObject();
 
-				while( $rs->next() )
+                foreach($result as $rs)
                 {
                     $dh = 0 ;
 					try
                     {
                         $ultDHAtivoCorrigido = $rs->corrigido;
-                        $dh = new SimpleDateFormat("yyyy-MM-dd H:m:s").parse(ultDHAtivoCorrigido).getTime();
+                        $dh = date("Y-m-d H:m:s", strtotime($this->ultDHAtivoCorrigido));
                     }
                     catch(\PDOException $e)
 					{ $e->getTraceAsString(); }

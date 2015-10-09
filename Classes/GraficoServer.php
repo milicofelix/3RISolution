@@ -47,7 +47,7 @@ class GraficoServer
     private $tamanhoListAC = 3000;
     //private ArrayList<AtivoCorrigido> listAC = new ArrayList<AtivoCorrigido>(tamanhoListAC);
     //private LinkedHashMap<String,Integer> mapAC = new LinkedHashMap<String,Integer>();
-    private $ultDHAtivoCorrigido = null;
+    public $ultDHAtivoCorrigido = null;
 
         // lista de todas as análises
     protected $tamanhoListAN = 200;
