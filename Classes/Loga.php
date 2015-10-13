@@ -9,8 +9,6 @@
 namespace Classes;
 
 
-use Classes\Config\Conexao;
-
 class Loga
 {
     private $conn;
@@ -20,7 +18,7 @@ class Loga
         $this->conn = Conexao::getInstance();
     }
 
-    private function logaContingencia($erro, $usuario, $corretora)
+    public function logaContingencia($erro, $usuario, $corretora)
 {
 
 try
@@ -55,7 +53,7 @@ catch(\PDOException $e)
         }
 	}
 
-private function logaEntrada($request)
+public function logaEntrada($request)
 {
     $id = -1;
 
@@ -96,7 +94,7 @@ catch(\PDOException $e){}
 		return "<entrada>" . $id . "</entrada>";
 	}
 
-private function logaSaida($request)
+public function logaSaida($request)
 {
     if( !$this->conn )
 
@@ -119,7 +117,7 @@ private function logaSaida($request)
 		}
 		catch(\PDOException $e) {}
 	}
-private function logaStatusConexao($request)
+public function logaStatusConexao($request)
 	{
         if( !$this->conn )
             return;

@@ -9,8 +9,6 @@
 namespace Classes;
 
 
-use Classes\Config\Conexao;
-
 class Retas
 {
 	private $conn;
@@ -20,7 +18,7 @@ class Retas
 		$this->conn         = Conexao::getInstance();
 	}
 
-	private function getRetas($request)
+	public function getRetas($request)
 {
 
 	if( !$this->conn )
@@ -103,7 +101,7 @@ class Retas
 		return $xml;
 	}
 
-	private function salvaRetas($request)
+	public function salvaRetas($request)
 	{
 		if( !$this->conn )
 		{
@@ -239,7 +237,7 @@ class Retas
 		return $xml;
 	}
 
-private function excluiRetas($request)
+public function excluiRetas($request)
 	{
 		if( !$this->conn )
 		{

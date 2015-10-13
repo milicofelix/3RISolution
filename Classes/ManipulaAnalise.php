@@ -9,12 +9,10 @@
 namespace Classes;
 
 use Classes\Analise;
-use Classes\Config\Conexao;
-
 
 class ManipulaAnalise extends GraficoServer
 {
-    private $listAnalises;
+    protected $listAnalises;
     private $conn;
     
     public function __construct(){

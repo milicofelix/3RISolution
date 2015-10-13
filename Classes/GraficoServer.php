@@ -44,25 +44,26 @@ class GraficoServer
 
 
         // lista de ativos corrigidos
-    private $tamanhoListAC = 3000;
-    //private ArrayList<AtivoCorrigido> listAC = new ArrayList<AtivoCorrigido>(tamanhoListAC);
+    protected $tamanhoListAC = 3000;
+    protected $listAC;
     //private LinkedHashMap<String,Integer> mapAC = new LinkedHashMap<String,Integer>();
-    public $ultDHAtivoCorrigido = null;
+    protected $ultDHAtivoCorrigido = null;
 
         // lista de todas as análises
     protected $tamanhoListAN = 200;
-    //private ArrayList<Analise> listAnalises = new ArrayList<Analise>(tamanhoListAN);
+    protected $listAnalises;
     protected $ultDHAnalise = null;
     //private Thread threadAnalises;
 
         // lista de todos os alertas
     protected $tamanhoListAL = 3000;
-    //private ArrayList<Alerta> listAlertas = new ArrayList<Alerta>(tamanhoListAL);
+    protected $listAlertas = array();
     //private Thread threadAlertas;
 
     protected $bLog = false;
 
-    private $ultMinutoCacheMemoria = -1;
+    protected $ultMinutoCacheMemoria = -1;
+
 
     public function modulosContemGrupo($grupos, $modulos)
     {
@@ -72,10 +73,10 @@ class GraficoServer
             $grupos  = str_replace($grupos,"|", ";");
             $modulos = str_replace($modulos,"|", ";");
 
-            $vGrupos[]  = str_split(grupos,";");
-            $vModulos[] = str_split(modulos,";");
+            $vGrupos[]  = str_split($grupos,";");
+            $vModulos[] = str_split($modulos,";");
 
-            for( $i = 0; $i < count(vGrupos); $i++ )
+            for( $i = 0; $i < count($vGrupos); $i++ )
                 for( $j = 0; $j < count($vModulos); $j++ )
                     if( in_array($vGrupos[$i],$vModulos[$j]) )
                         return true;

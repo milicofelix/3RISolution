@@ -9,8 +9,6 @@
 namespace Classes;
 
 
-use Classes\Config\Conexao;
-
 class Historico extends GraficoServer
 {
     private $conn;
@@ -22,7 +20,7 @@ class Historico extends GraficoServer
         $this->dt   = new Horas();
     }
 
-    private function getHistoricosCorrigidos($ultDH)
+    public function getHistoricosCorrigidos($ultDH)
     {
         $sb = "";
 
@@ -48,7 +46,7 @@ class Historico extends GraficoServer
      * @param $nBarras
      * @return string
      */
-    private function getHistorico($ativo, $periodo, $horaFimPregao, $somenteBarrasHoje, $indexador, $nBarras)
+    public function getHistorico($ativo, $periodo, $horaFimPregao, $somenteBarrasHoje, $indexador, $nBarras)
 	{
         $xml = "";
 
@@ -245,7 +243,7 @@ class Historico extends GraficoServer
 
 	}
 
-    private function getHistoricoBanco2($ativo, $periodo, $horaFimPregao)
+    public function getHistoricoBanco2($ativo, $periodo, $horaFimPregao)
 	{
         //Connection connectionCotacoes = conexaoBancoCotacoes();
 
@@ -374,7 +372,7 @@ class Historico extends GraficoServer
 		return $tmHistorico;
 	}
 
-    private function procuraHistoricosCorrigidos()
+    public function procuraHistoricosCorrigidos()
 {
 //echo "SERVIDOR=".$servidorLocal;
 //		if( (servidorLocal.equals("localhost") && !conexaoBancoIntranetRemoto()) || !conexaoBancoIntranet() )
@@ -413,20 +411,20 @@ class Historico extends GraficoServer
                     catch(\PDOException $e)
 					{ $e->getTraceAsString(); }
 
-					if( count($listAC) == $tamanhoListAC ) // aumenta a capacidade em 10% se necessário
+					if( count($this->listAC) == $this->tamanhoListAC ) // aumenta a capacidade em 10% se necessário
                     {
-                        $tamanhoListAC += (tamanhoListAC / 10);
-                        $listAC.ensureCapacity($tamanhoListAC);
+                        $this->tamanhoListAC += ($this->tamanhoListAC / 10);
+                        $this->listAC.ensureCapacity($this->tamanhoListAC);
                     }
 
-					if( $mapAC->containsKey($rs->getString("codigo")) )
+					if( $this->mapAC->containsKey($rs->getString("codigo")) )
                     {
                         $listAC->set(mapAC.get($rs->getString("codigo")), new AtivoCorrigido($dh, $rs->getString("codigo")));
                     }
                     else
                     {
                         $listAC->add(new AtivoCorrigido($dh, $rs->getString("codigo")));
-                        $mapAC->put($rs->getString("codigo"), $listAC.size()-1);
+                        $this->mapAC->put($rs->getString("codigo"), $listAC.size()-1);
                     }
 				}
 
@@ -435,9 +433,9 @@ class Historico extends GraficoServer
                     Collections.sort($listAC);
 
                     // mapeia novamente os ativos para não repetirem na lista depois
-                    $mapAC->clear();
+                    $this->mapAC->clear();
                     for( $i = 0; $i < count($listAC); $i++ )
-						$mapAC->put($listAC.get($i)->codigo, $i);
+						$this->mapAC->put($listAC.get($i)->codigo, $i);
 
 					echo "SizeAC:" . count($listAC);
 					echo "Ativo:" . $listAC->get(0)->codigo . " DH:" . new SimpleDateFormat("yyyy-MM-dd H:m:s").format(new Date($listAC->get(0).$dh));

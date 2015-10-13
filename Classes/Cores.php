@@ -9,8 +9,6 @@
 namespace Classes;
 
 
-use Classes\Config\Conexao;
-
 class Cores
 {
     private $conn;
@@ -19,7 +17,7 @@ class Cores
         $this->conn = Conexao::getInstance();
     }
 
-    private function getCores($request)
+    public function getCores($request)
 {
 
     if( $request->getParameter("u") == null || trim($request->getParameter("u")) =="")
@@ -225,7 +223,7 @@ class Cores
 		return $xml;
 	}
 
-    private function salvaCores($request)
+    public function salvaCores($request)
 	{
         if( $request->getParameter("u") == null || trim($request->getParameter("u")) == "" )
             return "<retorno>0</retorno>";

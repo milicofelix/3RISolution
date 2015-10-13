@@ -9,8 +9,6 @@
 namespace Classes;
 
 
-use Classes\Config\Conexao;
-
 class Negocios
 {
     private $conn;
@@ -20,7 +18,7 @@ class Negocios
         $this->conn         = Conexao::getInstance();
     }
 
-    private function getNegocios($request)
+    public function getNegocios($request)
 {
     //Connection connectionCotacoes = conexaoBancoCotacoes();
 
@@ -102,7 +100,7 @@ if( !$this->conn )
 		return $xml;
 	}
 
-    private function getdatasNegocios($request)
+    public function getdatasNegocios($request)
 	{
         //Connection connectionCotacoes = conexaoBancoCotacoes();
 

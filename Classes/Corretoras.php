@@ -8,9 +8,6 @@
 
 namespace Classes;
 
-
-use Classes\Config\Conexao;
-
 class Corretoras
 {
     private $conn;
@@ -20,7 +17,7 @@ class Corretoras
         $this->conn         = Conexao::getInstance();
     }
 
-    private function getListaCorretoras($request)
+    public function getListaCorretoras($request)
 {
 
     if( !$this->conn )

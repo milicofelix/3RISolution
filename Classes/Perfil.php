@@ -9,18 +9,23 @@
 namespace Classes;
 
 
-class Perfil
+class Perfil extends GraficoServer
 {
-    private $listAnalises = array();
+    protected $listAnalises = array();
+    private $conn;
 
-    private function getPerfisCompartilhados($request)
+    public function __construct(){
+        $this->conn = Conexao::getInstance();
+    }
+
+    public function getPerfisCompartilhados($request)
     {
         $xml = "";
         $ativoReferencia = $request->getParameter("ar");
         $licencas = $request->getParameter("l"); // licenças dos analistas que o usuário tem permissão para ver análises
         $listLicencas = array();
 
-        $ . $modulos = $request->getParameter("mo");
+        $modulos = $request->getParameter("mo");
 
     foreach( explode(',',$licencas) as $l )
     {
@@ -31,17 +36,17 @@ class Perfil
 
     for( $i = count($this->listAnalises)-1; $i >= 0; $i-- )
     {
-        if( ($listLicencas->contains($listAnalises->get($i)->licenca) || $listAnalises->get($i)->gratuita)
-            && $listAnalises->get($i)->compartilhar
-            && ($listAnalises->get($i)->grupos == null || $ . $modulosContemGrupo($listAnalises->get($i)->grupos, $ . $modulos))
-            && $listAnalises->get($i)->ativo == $ativoReferencia )
+        if( (in_array($this->listAnalises->get($i)->licenca,$listLicencas) || $this->listAnalises->get($i)->gratuita)
+            && $this->listAnalises->get($i)->compartilhar
+            && ($this->listAnalises->get($i)->grupos == null || $this->modulosContemGrupo($this->listAnalises->get($i)->grupos, $modulos))
+            && $this->listAnalises->get($i)->ativo == $ativoReferencia )
         {
             $xml .="<perfis>";
-            $xml .="<u>" . $listAnalises->get($i)->$usuario . "</u>";
-            $xml .="<l>" . $listAnalises->get($i)->licenca . "</l>";
-            $xml .="<n>" . $listAnalises->get($i)->perfil  . "</n>";
-            $xml .="<p>" . $listAnalises->get($i)->periodo . "</p>";
-            $xml .="<d>" . $listAnalises->get($i)->dh      . "</d>";
+            $xml .="<u>" . $this->listAnalises->get($i)->usuario . "</u>";
+            $xml .="<l>" . $this->listAnalises->get($i)->licenca . "</l>";
+            $xml .="<n>" . $this->listAnalises->get($i)->perfil  . "</n>";
+            $xml .="<p>" . $this->listAnalises->get($i)->periodo . "</p>";
+            $xml .="<d>" . $this->listAnalises->get($i)->dh      . "</d>";
             $xml .="</perfis>";
         }
     }
@@ -49,43 +54,44 @@ class Perfil
 		return $xml;
 }
 
-private function getPerfisCompartilhadosAnalista($request)
-{
-    $xml = "";
+    public function getPerfisCompartilhadosAnalista($request)
+    {
+        $xml = "";
 
-     $licenca = 0;
-try
-{
-licenca = Integer.parseInt($request->getParameter("l")); // licença do analista
-}
-catch(NumberFormatException e){}
+        $licenca = 0;
 
-		 . $modulos = $request->getParameter("mo");
+        try
+        {
+        $licenca = $request->getParameter("l"); // licença do analista
+        }
+        catch(\PDOException $e){}
 
-		for( $i = count($listAnalises)-1; $i >= 0; $i-- )
-		{
-            if( $listAnalises->get($i)->licenca == licenca
-                && $listAnalises->get($i)->compartilhar
-                && ($listAnalises->get($i)->grupos == null ||  . modulosContemGrupo($listAnalises->get($i)->grupos,  . $modulos))
-            )
-            {
-                $xml .= "<perfis>");
-                $xml .= "<u>" . $listAnalises->get($i)->$usuario . "</u>";
-                $xml .= "<l>" . $listAnalises->get($i)->licenca . "</l>";
-                $xml .= "<n>" . $listAnalises->get($i)->perfil  . "</n>";
-                $xml .= "<a>" . $listAnalises->get($i)->ativo   . "</a>";
-                $xml .= "<p>" . $listAnalises->get($i)->periodo . "</p>";
-                $xml .= "<d>" . $listAnalises->get($i)->dh      . "</d>";
-                $xml .= "</perfis>";
-            }
+                 $modulos = $request->getParameter("mo");
+
+                for( $i = count($this->listAnalises)-1; $i >= 0; $i-- )
+                {
+                    if( $this->listAnalises->get($i)->licenca == $licenca
+                        && $this->listAnalises->get($i)->compartilhar
+                        && ($this->listAnalises->get($i)->grupos == null ||  $this->modulosContemGrupo($this->listAnalises->get($i)->grupos,  $modulos))
+                    )
+                    {
+                        $xml .= "<perfis>";
+                        $xml .= "<u>" . $this->listAnalises->get($i)->usuario . "</u>";
+                        $xml .= "<l>" . $this->listAnalises->get($i)->licenca . "</l>";
+                        $xml .= "<n>" . $this->listAnalises->get($i)->perfil  . "</n>";
+                        $xml .= "<a>" . $this->listAnalises->get($i)->ativo   . "</a>";
+                        $xml .= "<p>" . $this->listAnalises->get($i)->periodo . "</p>";
+                        $xml .= "<d>" . $this->listAnalises->get($i)->dh      . "</d>";
+                        $xml .= "</perfis>";
+                    }
+                }
+
+            return $xml;
         }
 
-		return $xml;
-	}
-
-    private function getPerfisCompartilhadosTodosAnalistas($request)
+    public function getPerfisCompartilhadosTodosAnalistas($request)
 	{
-        $xml = new Builder();
+        $xml = "";
 
 		$licencas = $request->getParameter("l"); // licenças dos analistas que o usuário tem permissão para ver análises
 		$listLicencas = array();
@@ -94,27 +100,27 @@ catch(NumberFormatException e){}
 		{
             try
             {
-                $listLicencas.add(Integer.parseInt($l));
+                array_push($listLicencas,$l);
             }
             catch(\PDOException $e){}
 		}
 
 		$modulos = $request->getParameter("mo");
 
-		for( int i = listAnalises.size()-1; i >= 0; i-- )
+		for( $i = count($this->listAnalises)-1; $i >= 0; $i-- )
 		{
-            if( ($listLicencas->contains($listAnalises->get($i)->licenca) || $listAnalises->get($i)->gratuita)
-                && $listAnalises->get($i)->compartilhar
-                && ($listAnalises->get($i)->grupos == null ||  $modulosContemGrupo($listAnalises->get($i)->grupos,   $modulos))
+            if( (in_array($this->listAnalises->get($i)->licenca,$listLicencas) || $this->listAnalises->get($i)->gratuita)
+                && $this->listAnalises->get($i)->compartilhar
+                && ($this->listAnalises->get($i)->grupos == null ||  $this->modulosContemGrupo($this->listAnalises->get($i)->grupos,   $modulos))
             )
             {
                 $xml .= "<perfis>";
-                $xml .= "<u>" . $listAnalises->get($i)->$usuario . "</u>";
-                $xml .= "<l>" . $listAnalises->get($i)->licenca . "</l>";
-                $xml .= "<n>" . $listAnalises->get($i)->perfil  . "</n>";
-                $xml .= "<a>" . $listAnalises->get($i)->ativo   . "</a>";
-                $xml .= "<p>" . $listAnalises->get($i)->periodo . "</p>";
-                $xml .= "<d>" . $listAnalises->get($i)->dh      . "</d>";
+                $xml .= "<u>" . $this->listAnalises->get($i)->usuario . "</u>";
+                $xml .= "<l>" . $this->listAnalises->get($i)->licenca . "</l>";
+                $xml .= "<n>" . $this->listAnalises->get($i)->perfil  . "</n>";
+                $xml .= "<a>" . $this->listAnalises->get($i)->ativo   . "</a>";
+                $xml .= "<p>" . $this->listAnalises->get($i)->periodo . "</p>";
+                $xml .= "<d>" . $this->listAnalises->get($i)->dh      . "</d>";
                 $xml .= "</perfis>";
             }
         }
@@ -122,9 +128,9 @@ catch(NumberFormatException e){}
 		return $xml;
 	}
 
-    private function salvaPerfilGrafico($request)
+    public function salvaPerfilGrafico($request)
 	{
-        if( !conexaoBancoIntranet() )
+        if( !$this->conn ) //conexaoBancoIntranet
         {
             echo "Nao pude salvar Perfil por nao conseguir conexao com o banco INTRANET";
             return "";
@@ -142,12 +148,12 @@ catch(NumberFormatException e){}
 
 				$cd_perfil = -1;
 
-				$xml .= "SELECT cd_perfil FROM perfil_grafico_java WHERE $usuario = '" . $usuario . "' AND cd_$empresa = " . $empresa . " AND nm_perfil = '" . perfil . "'";
-				rs = statementIntranet.executeQuery(sb.to());
-				if( rs.next() )
-                    cd_perfil = rs.getInt(1);
+				$xml .= "SELECT cd_perfil FROM perfil_grafico_java WHERE usuario = '" . $usuario . "' AND cd_empresa = " . $empresa . " AND nm_perfil = '" . perfil . "'";
+				$rs = $statementIntranet->executeQuery($xml);
+				if( $rs->next() )
+                    $cd_perfil = $rs->getInt(1);
 
-				if( cd_perfil == -1 )
+				if( $cd_perfil == -1 )
                 {
 
                     $xml .= "INSERT INTO perfil_grafico_java VALUES(";
@@ -279,13 +285,13 @@ catch(NumberFormatException e){}
                     $xml .= ",'" . ($request->getParameter("dssb") != null ? $request->getParameter("dssb") : "26")  . "'"; // Desloca Senkou Span B
                     $xml .= ",'" . ($request->getParameter("ssb") != null ? $request->getParameter("ssb") : "52")  . "'"; // Senkou Span B
 
-                    $xml .= ")");
+                    $xml .= ")";
                 }
                 else
                 {
 
-                    $xml .= "UPDATE perfil_grafico_java SET ");
-                    $xml .= "dh_ult_acesso = now()");           // dh_ult_acesso
+                    $xml .= "UPDATE perfil_grafico_java SET ";
+                    $xml .= "dh_ult_acesso = now()";           // dh_ult_acesso
                     $xml .= ",barras = '" . $request->getParameter("bar") . "'";   // barras
                     $xml .= ",periodo_mm1 = '" . $request->getParameter("pm1") . "'";   // periodo_mm1
                     $xml .= ",periodo_mm2 = '" . $request->getParameter("pm2") . "'";   // periodo_mm2
@@ -409,17 +415,17 @@ catch(NumberFormatException e){}
                     $xml .= " cd_perfil = " . $cd_perfil;
                 }
 
-  				$retorno = statementIntranet.executeUpdate($xml);
+  				$retorno = $statementIntranet>executeUpdate($xml);
 
   				// Ronam 17/2/2011
-				if( $analista && conexaoBancoIntranetRemoto() )
-                    try{ statementIntranetRemoto.executeUpdate($xml); } catch(\PDOException $e){ $e->getTraceAs(); }
+				if( $analista && $this->conn ) //conexaoBancoIntranetRemoto
+                    try{ $statementIntranetRemoto->executeUpdate($xml); } catch(\PDOException $e){ $e->getTraceAsString(); }
 
 				if( $retorno == 1 && $cd_perfil == -1 ) // se foi um insert bem sucedido, pesquisa o cd_perfil
                 {
 
                     $xml .= "SELECT cd_perfil FROM perfil_grafico_java WHERE $usuario = '" . $usuario . "' AND cd_$empresa = " . $empresa . " AND nm_perfil = '" . $perfil . "'";
-                    $rs = statementIntranet.executeQuery($xml);
+                    $rs = $statementIntranet->executeQuery($xml);
                     if( $rs->next() )
                         $cd_perfil = $rs->getInt(1);
                 }
@@ -429,33 +435,33 @@ catch(NumberFormatException e){}
 
                     $xml .= "DELETE FROM perfil_grafico_java_estudo WHERE cd_perfil = " . $cd_perfil;
 
-                    $statementIntranet.executeUpdate($xml);
+                    $statementIntranet->executeUpdate($xml);
                     if( $analista && conexaoBancoIntranetRemoto() )
-                        try{ statementIntranetRemoto.executeUpdate($xml); } catch(\PDOException $e){ $e->getTraceAs(); }
+                        try{ $statementIntranetRemoto->executeUpdate($xml); } catch(\PDOException $e){ $e->getTraceAs(); }
 
 					$nEstudo = 1;
-					while( $retorno == 1 && $request->getParameter("e"+$nEstudo) != null && !$request->getParameter("e"+$nEstudo) == "livre" && !empty(trim($request->getParameter("e"+$nEstudo))) )
+					while( $retorno == 1 && $request->getParameter("e".$nEstudo) != null && !$request->getParameter("e".$nEstudo) == "livre" && !empty(trim($request->getParameter("e".$nEstudo))) )
                     {
                         $xml .= "INSERT INTO perfil_grafico_java_estudo VALUES(";
                         $xml .= $cd_perfil;
-                        $xml .= ",'" . $request->getParameter("e"+$nEstudo) . "'";     // estudo
-                        $xml .= ","  . $request->getParameter("e"+$nEstudo+"p1");      // periodo1
-                        $xml .= ","  . $request->getParameter("e"+$nEstudo+"p2");      // periodo2
-                        $xml .= ","  . $request->getParameter("e"+$nEstudo+"p3");      // periodo3
-                        $xml .= ","  . $request->getParameter("e"+$nEstudo+"o");       // oscilador
-                        $xml .= ","  . $request->getParameter("e"+$nEstudo+"m");       // media
-                        $xml .= ","  . $request->getParameter("e"+$nEstudo+"bc");      // base_calculo
-                        $xml .= ",'" . $request->getParameter("e"+$nEstudo+"l") . "'"; // linhas
+                        $xml .= ",'" . $request->getParameter("e".$nEstudo) . "'";     // estudo
+                        $xml .= ","  . $request->getParameter("e".$nEstudo."p1");      // periodo1
+                        $xml .= ","  . $request->getParameter("e".$nEstudo."p2");      // periodo2
+                        $xml .= ","  . $request->getParameter("e".$nEstudo."p3");      // periodo3
+                        $xml .= ","  . $request->getParameter("e".$nEstudo."o");       // oscilador
+                        $xml .= ","  . $request->getParameter("e".$nEstudo."m");       // media
+                        $xml .= ","  . $request->getParameter("e".$nEstudo."bc");      // base_calculo
+                        $xml .= ",'" . $request->getParameter("e".$nEstudo."l") . "'"; // linhas
                         $xml .= ",nextval('\"perfil_cd_perfil_estudo_seq\"'::text)";
-                        if( $request->getParameter("e"+$nEstudo+"tm") != null && $request->getParameter("e"+$nEstudo+"tm").length() == 1 )
-                            $xml .= ",'" . $request->getParameter("e"+$nEstudo+"tm") . "'"; // tipo da média
+                        if( $request->getParameter("e".$nEstudo."tm") != null && $request->getParameter("e".$nEstudo."tm").length() == 1 )
+                            $xml .= ",'" . $request->getParameter("e".$nEstudo."tm") . "'"; // tipo da média
                         else
                             $xml .= ",'A'"; // tipo da média
                         $xml .= ")";
 
                         $retorno = $statementIntranet->executeUpdate($xml);
                         if( $analista && conexaoBancoIntranetRemoto() )
-                            try{ statementIntranetRemoto.executeUpdate($xml); } catch(\PDOException $e){ $e->getTraceAs(); }
+                            try{ $statementIntranetRemoto->executeUpdate($xml); } catch(\PDOException $e){ $e->getTraceAsString(); }
 
 						$nEstudo++;
 					}
@@ -466,15 +472,15 @@ catch(NumberFormatException e){}
         catch(\PDOException $e)
 		{
             //echo "$sql Insert/Update Perfil: " . sb.to());
-            $e->getTraceAs();
+            $e->getTraceAsString();
         }
 
 		return $xml;
 	}
 
-    private function excluiPerfilGrafico($request)
+    public function excluiPerfilGrafico($request)
 	{
-        if( !conexaoBancoIntranet() )
+        if( !$this->conn ) //conexaoBancoIntranet
         {
             echo "Nao pude excluir Perfil por nao conseguir conexao com o banco INTRANET";
             return "";
@@ -491,29 +497,29 @@ catch(NumberFormatException e){}
             $usuario = $request->getParameter("u");
 			$empresa = $request->getParameter("e");
 			$perfil  = $request->getParameter("p");
-			$analista = $request->getParameter("analista")	!= null && $request->getParameter("analista").equals("1");
+			$analista = $request->getParameter("analista")	!= null && $request->getParameter("analista") == "1";
 
 				$cd_perfil = -1;
 
-				$sql = "SELECT cd_perfil FROM perfil_grafico_java WHERE $usuario = '" . $usuario . "' AND cd_$empresa = " . $empresa . " AND nm_perfil = '" . perfil . "'";
-				$rs = statementIntranet.executeQuery($sql);
+				$sql = "SELECT cd_perfil FROM perfil_grafico_java WHERE usuario = '" . $usuario . "' AND cd_empresa = " . $empresa . " AND nm_perfil = '" . $perfil . "'";
+				$rs = $statementIntranet->executeQuery($sql);
 				if( $rs->next() )
                 {
-                    $cd_perfil = rs->getInt(1);
+                    $cd_perfil = $rs->getInt(1);
 
                     $sql = "DELETE FROM perfil_grafico_java_estudo WHERE cd_perfil = " . $cd_perfil;
                     $statementIntranet->executeUpdate($sql);
 
-                    if( $analista && conexaoBancoIntranetRemoto() )
-                        try{ statementIntranetRemoto.executeUpdate($sql); } catch(\PDOException $e){ $e->getTraceAs(); }
+                    if( $analista && $this->conn ) //conexaoBancoIntranetRemoto
+                        try{ $statementIntranetRemoto->executeUpdate($sql); } catch(\PDOException $e){ $e->getTraceAsString(); }
 
   					if( $retorno == 1 )
                     {
                         $sql = "DELETE FROM perfil_grafico_java WHERE cd_perfil = " . $cd_perfil;
-                        statementIntranet.executeUpdate($sql);
+                        $statementIntranet->executeUpdate($sql);
 
-                        if( $analista && conexaoBancoIntranetRemoto() )
-                            try{ statementIntranetRemoto.executeUpdate($sql); } catch(\PDOException $e){ $e->getTraceAs(); }
+                        if( $analista && $this->conn ) //conexaoBancoIntranetRemoto
+                            try{ $statementIntranetRemoto->executeUpdate($sql); } catch(\PDOException $e){ $e->getTraceAsString(); }
   					}
   			    }
 		}
@@ -527,18 +533,18 @@ catch(NumberFormatException e){}
 		return "<retorno>" . $retorno . "</retorno>";
 	}
 
-    private function getPerfisGrafico($request)
+    public function getPerfisGrafico($request)
 	{
-        if( !conexaoBancoIntranet() )
+        if( !$this->conn ) //conexaoBancoIntranet
         {
-            echo "Nao pude recuperar Perfis por nao conseguir conexao com o banco INTRANET");
+            echo "Nao pude recuperar Perfis por nao conseguir conexao com o banco INTRANET";
             return "";
         }
 
         $xml = "";
 
 		$rs = null;
-		Statement statement = null;
+		$statement = null;
 
 		try
         {
@@ -547,13 +553,13 @@ catch(NumberFormatException e){}
             $usuario = $request->getParameter("u");
 			$empresa = $request->getParameter("e");
 
-            $sql = "SELECT nm_perfil FROM perfil_grafico_java WHERE $usuario = '" . $usuario . "' AND cd_$empresa = " . $empresa . " ORDER BY dh_ult_acesso DESC";
+            $sql = "SELECT nm_perfil FROM perfil_grafico_java WHERE usuario = '" . $usuario . "' AND cd_empresa = " . $empresa . " ORDER BY dh_ult_acesso DESC";
 
-				$rs = statement.executeQuery($sql);
+				$rs = $statement->executeQuery($sql);
 
 				$xml .= "<perfis>";
 
-				while( $rs.next() )
+				while( $rs->next() )
                     $xml .= "<p>" . $rs->nm_perfil . "</p>";
 
 				$xml .= "</perfis>";
@@ -565,9 +571,9 @@ catch(NumberFormatException e){}
 		return $xml;
 	}
 
-private function getPerfilGrafico($request)
+    public function getPerfilGrafico($request)
 	{
-        if( !conexaoBancoIntranet() )
+        if( !$this->conn ) //conexaoBancoIntranet
         {
             echo "Nao pude recuperar Perfil por nao conseguir conexao com o banco INTRANET";
             return "";
@@ -589,7 +595,7 @@ private function getPerfilGrafico($request)
                 else
                     $sql .= " ORDER BY dh_ult_acesso DESC LIMIT 1";
 
-				$rs = statementIntranet.executeQuery($sql);
+				$rs = $statementIntranet->executeQuery($sql);
 
 				if( $rs->next() )
                 {
@@ -718,7 +724,7 @@ private function getPerfilGrafico($request)
 
 			    try
                 {
-                    $rs = statementIntranet.executeQuery("SELECT * FROM perfil_grafico_java_estudo WHERE cd_perfil = " . $rs->getInt("cd_perfil") . " ORDER BY cd_perfil_estudo");
+                    $rs = $statementIntranet->executeQuery("SELECT * FROM perfil_grafico_java_estudo WHERE cd_perfil = " . $rs->cd_perfil . " ORDER BY cd_perfil_estudo");
 
                     $nEstudo = 1;
 					while( $rs->next() )

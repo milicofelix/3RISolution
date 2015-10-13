@@ -23,7 +23,21 @@ $autoLoad->setExt('php');
 
 spl_autoload_register(array($autoLoad, 'load'));
 
-$request = new Request();
+/*CRIANDO OS OBJETOS PARA MONTAR O XML*/
+
+$request        = new Request();
+$historico      = new \Classes\Historico();
+$topico         = new \Classes\Topicos();
+$pGrafico       = new \Classes\Perfil();
+$reta           = new \Classes\Retas();
+$negocio        = new \Classes\Negocios();
+$corretoraObj   = new \Classes\Corretoras();
+$cadObj         = new \Classes\Cadastro();
+$analiseObj     = new \Classes\ManipulaAnalise();
+$alertaObj      = new \Classes\ManipulaAlertas();
+$noticiaObj     = new \Classes\Noticia();
+$coresObj       = new \Classes\Cores();
+$logaObj        = new \Classes\Loga();
 
     echo "<h3>Home</h3>";
 
@@ -32,14 +46,14 @@ $request = new Request();
 		$xml .= "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";
 		$xml .= "<grafico>";
 
-		// verifica se o usuário pediu série histórica
+//		// verifica se o usuário pediu série histórica
 		if( $request->getParameter("serie") != null && !empty(trim($request->getParameter("serie"))) )
         {
             $ativo          = strtoupper($request->getParameter("ativo"));
 			$periodo        = $request->getParameter("periodo");
         	$horaFimPregao  = $request->getParameter("hfpregao");
         	$nBarras        = 2600; //$periodo == 0 ? 2600 : 1100;
-            
+
         	if( $periodo == 1 )
                 $nBarras = 2160;  // aprox 4 dias
             else if( $periodo == 5 )
@@ -50,7 +64,7 @@ $request = new Request();
         	$tmp = $request->getParameter("barras");
         	if( $tmp != null && !empty(trim($tmp)) )
             {
-                $v[] = $tmp.split(",");//vivoFDPdoCaralho
+                $v[] = explode(',',$tmp);//vivoFDPdoCaralho
 
         		if( $periodo == 0 && count($v) > 0 ) // número de barras para diário
                         $nBarras = $v[0];
@@ -66,20 +80,20 @@ $request = new Request();
         	}
 
 			if( $request->getParameter("serie") == "1" ) // histórico completo
-                $xml .= getHistorico($ativo, $periodo, $horaFimPregao, false, false, $nBarras);
+                $xml .= $historico->getHistorico($ativo, $periodo, $horaFimPregao, false, false, $nBarras);
 
-			if( $request->getParameter("serie").equals("2") ) // histórico apenas de hoje
-                $xml .= getHistorico($ativo, $periodo, $horaFimPregao, true, false, $nBarras);
+			if( $request->getParameter("serie") == "2" ) // histórico apenas de hoje
+                $xml .= $historico->getHistorico($ativo, $periodo, $horaFimPregao, true, false, $nBarras);
 
-			if( $request->getParameter("serie").equals("3") ) // histórico diário de um indexador
-                $xml .= getHistorico($ativo, $periodo, $horaFimPregao, false, true, $nBarras);
+			if( $request->getParameter("serie") == "3" ) // histórico diário de um indexador
+                $xml .= $historico->getHistorico($ativo, $periodo, $horaFimPregao, false, true, $nBarras);
 
 			if( $request->getParameter("serie") == "4") // histórico de Últimas para o Compar$ativo
             {
-                $ativos[] = $ativo->split(";");
+                $ativos[] = explode(';',$ativo);
 				for( $i = 0; $i < count($ativos); $i++ )
 				{
-                    $xml .= getHistorico($ativos[$i], $periodo, $horaFimPregao, false, true, $nBarras);
+                    $xml .= $historico->getHistorico($ativos[$i], $periodo, $horaFimPregao, false, true, $nBarras);
 				}
 			}
 		}
@@ -87,7 +101,7 @@ $request = new Request();
 		if( $request->getParameter("topico") != null && !empty(trim($request->getParameter("topico"))))
         {
             $ativo = strtoupper($request->getParameter("ativo"));
-			$dh = $request->getParameter("$dh");
+			$dh = $request->getParameter("dh");
 			$erro = $request->getParameter("erro");
 			$usuario = $request->getParameter("usuario");
 			$corretora = $request->getParameter("corretora");
@@ -101,146 +115,147 @@ $request = new Request();
 			$ultdhCorrecao = 0;
 			try
             {
-                ult$dhCorrecao = Long.parseLong($request->getParameter("ult_$dh_correcao"));
-            }catch(NumberFormatException e){}
+                $ultdhCorrecao = $request->getParameter("ult_dh_correcao");
+            }catch(PDOException $e){}
 
-			long ult$dhAnalise = 0;
+			$ultdhAnalise = 0;
 			try
             {
-                ult$dhAnalise = Long.parseLong($request->getParameter("ult_$dh_analise"));
-            }catch(NumberFormatException e){}
+                $ultdhAnalise = $request->getParameter("ult_dh_analise");
+            }catch(PDOException $e){}
 
-			ArrayList<Integer> listLicAnalises = new ArrayList<Integer>();
-			if( licencas != null && !licencas.equals("") )
+			$listLicAnalises = new ArrayObject();
+
+			if( $licencas != null && !empty($licencas) )
             {
-                for( $s : licencas.split(",") )
-					try{ listLicAnalises.add(Integer.parseInt(s)); }
-                    catch(NumberFormatException e){}
+                foreach( explode(',',$licencas) as $s)
+					try{ $listLicAnalises->append($s); }
+                    catch(PDOException $e){}
 			}
 
-			if( $request->getParameter("topico").equals("1") ) // tópico compatível com o ALL2 do Feeder
-                $xml .= getTopico($ativo, $dh, erro, usuario, corretora, ult$dhCorrecao, ult$dhAnalise, listLicAnalises, analiseGratuita != null && analiseGratuita.equals("1"), modulos));
+			if( $request->getParameter("topico") == "1" ) // tópico compatível com o ALL2 do Feeder
+                $xml .= $topico->getTopico($ativo, $dh, $erro, $usuario, $corretora, $ultdhCorrecao, $ultdhAnalise, $listLicAnalises, $analiseGratuita != null && $analiseGratuita == "1", $modulos);
 		}
 
 		if( $request->getParameter("perfil") != null )
         {
             // usuário pediu a lista de nomes de perfis + um perfil completo
-            if( $request->getParameter("perfil").equals("0") )
+            if( $request->getParameter("perfil") == "0")
             {
-                $xml .= getPerfisGrafico(request));
-                $xml .= getPerfilGrafico(request));
+                $xml .= $pGrafico->getPerfisGrafico($request);
+                $xml .= $pGrafico->getPerfilGrafico($request);
             }
 
             // usuário pediu um perfil específico
-            if( $request->getParameter("perfil").equals("1") )
-                $xml .= getPerfilGrafico(request));
+            if( $request->getParameter("perfil") == "1")
+                $xml .= $pGrafico->getPerfilGrafico($request);
 
             // usuário mandou salvar um perfil
-            if( $request->getParameter("perfil").equals("2") )
-                $xml .= salvaPerfilGrafico(request));
+            if( $request->getParameter("perfil") == "2")
+                $xml .= $pGrafico->salvaPerfilGrafico($request);
 
             // usuário mandou excluir um perfil
-            if( $request->getParameter("perfil").equals("3") )
-                $xml .= excluiPerfilGrafico(request));
+            if( $request->getParameter("perfil") == "3")
+                $xml .= $pGrafico->excluiPerfilGrafico($request);
 
             // usuário pediu lista de perfis compartilhados
-            if( $request->getParameter("perfil").equals("4") )
-                $xml .= getPerfisCompartilhados(request));
+            if( $request->getParameter("perfil") == "4")
+                $xml .= $pGrafico->getPerfisCompartilhados($request);
 
             // usuário pediu lista de todos os perfis compartilhados por uma dado analista
-            if( $request->getParameter("perfil").equals("5") )
-                $xml .= getPerfisCompartilhadosAnalista(request));
+            if( $request->getParameter("perfil") == "5")
+                $xml .= $pGrafico->getPerfisCompartilhadosAnalista($request);
 
             // usuário pediu lista de todos os perfis compartilhados por todos analistas que ele tem direito
-            if( $request->getParameter("perfil").equals("6") )
-                $xml .= getPerfisCompartilhadosTodosAnalistas(request));
+            if( $request->getParameter("perfil") == "6")
+                $xml .= $pGrafico->getPerfisCompartilhadosTodosAnalistas($request);
         }
 
 		if( $request->getParameter("reta") != null )
         {
             // usuário pediu retas
-            if( $request->getParameter("reta").equals("1") )
-                $xml .= getRetas(request));
+            if( $request->getParameter("reta") == "1")
+                $xml .= $reta->getRetas($request);
 
             // usuário mandou salvar retas
-            if( $request->getParameter("reta").equals("2") )
-                $xml .= salvaRetas(request));
+            if( $request->getParameter("reta") == "2")
+                $xml .= $reta->salvaRetas($request);
 
             // usuário mandou excluir retas
-            if( $request->getParameter("reta").equals("3") )
-                $xml .= excluiRetas(request));
+            if( $request->getParameter("reta") == "3")
+                $xml .= $reta->excluiRetas($request);
         }
 
 		if( $request->getParameter("salvaretaant") != null )
         {
             // usuário mandou salvar retas do $ativo anterior
-            if( $request->getParameter("salvaretaant").equals("1") )
-                $xml .= salvaRetas(request));
+            if( $request->getParameter("salvaretaant") == "1")
+                $xml .= $reta->salvaRetas($request);
         }
 
 		if( $request->getParameter("apagaretaant") != null )
         {
             // usuário mandou excluir retas
-            if( $request->getParameter("apagaretaant").equals("1") )
-                $xml .= excluiRetas(request));
+            if( $request->getParameter("apagaretaant") == "1")
+                $xml .= $reta->excluiRetas($request);
         }
 
 		if( $request->getParameter("negocio") != null )
         {
-            $xml .= getNegocios(request));
+            $xml .= $negocio->getNegocios($request);
         }
 
 		if( $request->getParameter("datas") != null )
         {
-            $xml .= getDatasNegocios(request));
+            $xml .= $negocio->getDatasNegocios($request);
         }
 
 		if( $request->getParameter("corretoras") != null )
         {
-            $xml .= getListaCorretoras(request));
+            $xml .= $corretoraObj->getListaCorretoras($request);
         }
 
 		if( $request->getParameter("cadastro") != null )
         {
-            $xml .= getCadastro());
+            $xml .= $cadObj->getCadastro();
         }
 
 		if( $request->getParameter("correcao") != null )
         {
-            long ult$dh = 0;
+            $ultdh = 0;
 			try
             {
-                ult$dh = Long.parseLong($request->getParameter("ult_$dh_correcao"));
-            }catch(NumberFormatException e){}
-			$xml .= getHistoricosCorrigidos(ult$dh));
+                $ultdh = $request->getParameter("ult_dh_correcao");
+            }catch(PDOException $e){}
+			$xml .= $historico->getHistoricosCorrigidos($ultdh);
 		}
 
 		if( $request->getParameter("analise") != null )
         {
-            long ult$dh = 0;
+            $ultdh = 0;
 			try
             {
-                ult$dh = Long.parseLong($request->getParameter("ult_$dh_analise"));
-            }catch(NumberFormatException e){}
+                $ultdh = $request->getParameter("ult_dh_analise");
+            }catch(PDOException $e){}
 
-			$xml .= getAnalisesXML(ult$dh));
+			$xml .= $analiseObj->getAnalisesXML($ultdh);
 		}
 
 		if( $request->getParameter("alerta") != null )
         {
-            if( $request->getParameter("alerta").equals("1") )
-                $xml .= getAlertas());
+            if( $request->getParameter("alerta") == "1")
+                $xml .= $alertaObj->getAlertas();
 
-            if( $request->getParameter("alerta").equals("2") )
-                $xml .= desativaAlerta(request));
+            if( $request->getParameter("alerta") == "2")
+                $xml .= $alertaObj->desativaAlerta($request);
 
-            if( $request->getParameter("alerta").equals("3") )
-                $xml .= excluiAlerta(request));
+            if( $request->getParameter("alerta") == "3")
+                $xml .= $alertaObj->excluiAlerta($request);
         }
 
 		if( $request->getParameter("noticia") != null )
         {
-            $xml .= getNoticias(request));
+            $xml .= $noticiaObj->getNoticias($request);
         }
 
 		if( $request->getParameter("log_entrada") != null )
@@ -260,28 +275,29 @@ $request = new Request();
 
 		if( $request->getParameter("cores") != null )
         {
-            if( $request->getParameter("cores").equals("1") )
-                $xml .= salvaCores(request));
+            if( $request->getParameter("cores") == "1")
+                $xml .= $coresObj->salvaCores($request);
 
-            if( $request->getParameter("cores").equals("2") )
-                $xml .= getCores(request));
+            if( $request->getParameter("cores") == "2")
+                $xml .= $coresObj->getCores($request);
         }
 
 		if( $request->getParameter("alertas") != null )
         {
-            $xml .= getAlertasAbasGrafico(request));
+            $xml .= $alertaObj->getAlertasAbasGrafico($request);
         }
 
-		$xml .= "</grafico>");
+		$xml .= "</grafico>";
 
-		sendResponse($xml, response);
+
+        echo $xml;
 
 		// faz log das atualizações via contingência
-		if( $request->getParameter("topico") != null && !$request->getParameter("topico").trim().equals("") )
+		if( $request->getParameter("topico") != null && !empty(trim($request->getParameter("topico"))))
         {
             $erro = $request->getParameter("erro");
 			$usuario = $request->getParameter("usuario");
 			$corretora = $request->getParameter("corretora");
 
-			logaContingencia(erro, usuario, corretora);
+			$logaObj->logaContingencia($erro, $usuario, $corretora);
 		}

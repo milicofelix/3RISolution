@@ -9,8 +9,6 @@
 namespace Classes;
 
 
-use Classes\Config\Conexao;
-
 class Cadastro
 {
     private $conn;
@@ -19,7 +17,7 @@ class Cadastro
         $this->conn = Conexao::getInstance();
     }
 
-    private function getCadastro()
+    public function getCadastro()
 {
 if( !$this->conn )
 {

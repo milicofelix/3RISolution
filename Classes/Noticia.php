@@ -12,8 +12,12 @@ namespace Classes;
 class Noticia
 {
     private $conn;
+
+    public function __construct(){
+        $this->conn = Conexao::getInstance();
+    }
     
-    private function getNoticias($request)
+    public function getNoticias($request)
 {
     if( !$this->conn )
     {
