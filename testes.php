@@ -12,7 +12,7 @@
  * Date: 05/10/2015
  * Time: 10:55
  */
-//header('Content-Type: charset=utf-8');
+//header('Content-Type: charset=utf-8;
 
 
 define('DS', DIRECTORY_SEPARATOR);
@@ -28,21 +28,31 @@ $autoLoad->setExt('php');
 
 spl_autoload_register(array($autoLoad, 'load'));
 
+
+$hoje = date("d-m-Y");
+
+$arquivo = fopen(ROOT.DS."Logs".DS."log_tarefa.$hoje.txt", "ab");
+// Coloque o codigo da sua primeira tarefa aqui
+// ...
+$hora = date("H:i:s T");
+fwrite($arquivo, "[$hora] Tarefa executada.\r\n");
+fclose($arquivo);
+
 echo "<h3>Pagina de teste</h3>";
 
 //$ativo = "LiuAED_basteao";
 //
-//$posicao = strpos($ativo, 'AED_');
+//$posicao = strpos($ativo, 'AED_;
 //
 //echo substr($ativo, $posicao);
 //
 //echo "<hr />";
 //$data = new DateTime();
 //
-//$hora = $data->format('His');
+//$hora = $data->format('His;
 //
 //echo "Hora atual: ". $hora;
-//echo "<br />Minutos: ".$data->format('i');
+//echo "<br />Minutos: ".$data->format('i;
 //
 //echo "<h4>Utilizando minha classe </h4>";
 //
@@ -107,17 +117,17 @@ echo "<h3>Pagina de teste</h3>";
 //
 //$request = new \Classes\Request();
 //
-//echo $request->getParameter('sobrenome');
+//echo $request->getParameter('sobrenome;
 
 //// Criando uma imagem truecolor, com tamanho 200px por 300px, e fundo preto
 ////$img = imagecreatetruecolor(200, 300);
 //
 //// Abrindo uma imagem JPG existente
-//$arq = imagecreatefromjpeg('imagens/eu.jpg');
+//$arq = imagecreatefromjpeg('imagens/eu.jpg;
 //
 //$qualidade = 100; // valor entre 0-100
 //$img = "";
-//header('Content-Type: image/jpeg');
+//header('Content-Type: image/jpeg;
 //imagejpeg($arq, null, $qualidade);
 //
 //$destino = 'imagens/imagem.jpg';
@@ -162,7 +172,7 @@ echo "<br />";
 //print_r($frutas,false);
 //echo "</pre>";
 //$arrayList->Remove(0);
-//$arrayList->Add('Melão');
+//$arrayList->Add('Melão;
 //echo "<br />";
 //echo $arrayList->Size();
 //echo "<pre>";
@@ -173,9 +183,9 @@ echo "<br />";
 //$obj = new ArrayObject($paises);
 ////echo "<pre>";
 ////print_r($obj);
-////$obj->append(array('Alemanha','Espanha','Costa Rica'));
+////$obj->append(array('Alemanha','Espanha','Costa Rica);
 //$p = $obj->getIterator();
-//$p->offsetSet($p->count(),'Mexico');
+//$p->offsetSet($p->count(),'Mexico;
 //
 ////echo "<pre>";
 ////var_dump($obj);exit();
@@ -190,8 +200,8 @@ echo "<br />";
 //    echo '<br />';
 //    $p->next();
 //}
-////var_dump($obj->offsetExists('Brasil'));exit();
-////if($obj->offsetExists('Bolivia')){
+////var_dump($obj->offsetExists('Brasil);exit();
+////if($obj->offsetExists('Bolivia){
 ////    echo "Gooooolllll, da Bolivia!!!!";
 ////}else{
 ////    echo "Valor n encontrado!";
@@ -205,33 +215,51 @@ echo "<br />";
 //    echo $k+1 . ' - '. $v.'<br />';
 //}
 
+
+/* ### GRAVANDO LOG DE ERRO  ### */
+
 $alerta = new \Classes\Alerta();
 
-$objAlerta = new ArrayObject($alerta);
-$al = $objAlerta->getIterator();
-$xml = "";
-for($i = $objAlerta->getIterator();$i->valid();$i->next()){
-    $xml .="<alerta>";
-    $xml .="<u>"  . $i->offsetExists($i->key()) . "</u>";
-//    $xml .="<e>" . $i->offsetGet('empresa') . "</e>";
-//    $xml .="<a>" . $i->offsetGet(' ativo')  . "</a>";
-//    $xml .="<p>" . $i->offsetGet('periodo') . "</p>";
-//    $xml .="<dh>" . $i->offsetGet('dh')     . "</dh>";
-//    $xml .="<d1>" . $i->offsetGet('data1')  . "</d1>";
-//    $xml .="<d2>" . $i->offsetGet('data2')  . "</d2>";
-//    $xml .="<h1>" . $i->offsetGet('hora1')  . "</h1>";
-//    $xml .="<h2>" . $i->offsetGet('hora2')  . "</h2>";
-//    $xml .="<v1>" . $i->offsetGet('valor1') . "</v1>";
-//    $xml .="<v2>" . $i->offsetGet('valor2') . "</v2>";
-//    $xml .="<te>" . $i->offsetGet('texto')  . "</te>";
-//    $xml .="<ti>" . $i->offsetGet('tipo')   . "</ti>";
-//    $xml .="<al>" . $i->offsetGet('alerta') . "</al>";
-//    $xml .="<ac>" . ($i->offsetGet('acionado ') ? 1 : 0) . "</ac>";
-    $xml .="</alerta>";
-
+function getcfg($nome)
+{
+    if (($hf=fopen(ROOT.DS.'Config'.DS.$nome, 'r'))!=FALSE)
+    {
+        $linha=fgets($hf);
+        fclose($hf);
+        return $linha;
+    }
+    return '';
 }
 
-print_r($xml);
+$connect_lw=getcfg('site_locaweb.cfg');
+
+echo $connect_lw;
+
+
+$xml = "";
+
+//for($i = 0; $i < count($objAlerta); $i++)
+    $xml .="<alerta>";
+    //$xml .="<u>"  . $objAlerta[$i] . "</u>";
+//    $xml .="<e>" . $i->empresa . "</e>";
+//    $xml .="<a>" . $i->ativo  . "</a>";
+//    $xml .="<p>" . $i->periodo . "</p>";
+//    $xml .="<dh>" . $i->dh     . "</dh>";
+//    $xml .="<d1>" . $i->data1  . "</d1>";
+//    $xml .="<d2>" . $i->data2  . "</d2>";
+//    $xml .="<h1>" . $i->hora1  . "</h1>";
+//    $xml .="<h2>" . $i->hora2  . "</h2>";
+//    $xml .="<v1>" . $i->valor1 . "</v1>";
+//    $xml .="<v2>" . $i->valor2 . "</v2>";
+//    $xml .="<te>" . $i->texto  . "</te>";
+//    $xml .="<ti>" . $i->tipo   . "</ti>";
+//    $xml .="<al>" . $i->alerta . "</al>";
+//    $xml .="<ac>" . ($i->acionado  ? 1 : 0) . "</ac>";
+    $xml .="</alerta>";
+
+//}
+//URL = http://localhost:8000/?ativo=t&serie=bra&periodo=noturno&hfpregao=vinte&barras=sim&topico=vendas&dh=24&erro=false&usuario=milico&corretora=beleza&licencas=ind&ag=7174&modulos=teste&ult_dh_correcao=c&ult_dh_analise=e&perfil=base&reta=int&salvaretaant=y&apagaretaant=n&negocio=10&datas=h&corretoras=5&bolsa=v&delay=t&data=a&cadastro=co&correcao=pr&analise=pre&alerta=at&noticia=sem&log_entrada=at&log_saida=at&log_status=at&cores=all
+echo "<pre>";
 
 ?>
 </body>

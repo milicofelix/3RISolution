@@ -1,0 +1,5 @@
+[15:26:37 BRT] Tarefa executada.
+[15:27:21 BRT] Tarefa executada.
+[16:26:29 BRT] Tarefa executada.
+[16:28:54 BRT] Tarefa executada.
+[16:30:54 BRT] Tarefa executada.
