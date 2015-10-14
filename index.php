@@ -10,10 +10,14 @@
 
 
 define('DS', DIRECTORY_SEPARATOR);
-define('ROOT', dirname(__FILE__));
-//include_once "banco.inc";
+define('ROOT',dirname(__FILE__));
+
+//define('ROOT',($_SERVER['HTTP_HOST'] !== 'localhost:8000')? '/home/storage/8/46/a1/apligraf/public_html/apligraf/grafico-server' : dirname(__FILE__) );
 
 require 'Classes'.DS.'AutoLoad.php';
+//echo ROOT.DS.'Classes'.DS.'AutoLoad.php';exit();
+
+
 use Classes\Autoload;
 use Classes\Request;
 
