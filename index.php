@@ -14,34 +14,38 @@ define('ROOT',dirname(__FILE__));
 
 //define('ROOT',($_SERVER['HTTP_HOST'] !== 'localhost:8000')? '/home/storage/8/46/a1/apligraf/public_html/apligraf/grafico-server' : dirname(__FILE__) );
 
-require 'Classes'.DS.'AutoLoad.php';
+require 'vendor/autoload.php';
 //echo ROOT.DS.'Classes'.DS.'AutoLoad.php';exit();
 
-
-use Classes\Autoload;
-use Classes\Request;
-
-$autoLoad = new AutoLoad();
-$autoLoad->setPath(ROOT);
-$autoLoad->setExt('php');
-
-spl_autoload_register(array($autoLoad, 'load'));
+use tresrisolution\Classes\Request;
+use tresrisolution\Classes\Historico;
+use tresrisolution\Classes\Topicos;
+use tresrisolution\Classes\Perfil;
+use tresrisolution\Classes\Retas;
+use tresrisolution\Classes\Negocios;
+use tresrisolution\Classes\Corretoras;
+use tresrisolution\Classes\Cadastro;
+use tresrisolution\Classes\ManipulaAnalise;
+use tresrisolution\Classes\ManipulaAlertas;
+use tresrisolution\Classes\Noticia;
+use tresrisolution\Classes\Cores;
+use tresrisolution\Classes\Loga;
 
 /*CRIANDO OS OBJETOS PARA MONTAR O XML*/
 
 $request        = new Request();
-$historico      = new \Classes\Historico();
-$topico         = new \Classes\Topicos();
-$pGrafico       = new \Classes\Perfil();
-$reta           = new \Classes\Retas();
-$negocio        = new \Classes\Negocios();
-$corretoraObj   = new \Classes\Corretoras();
-$cadObj         = new \Classes\Cadastro();
-$analiseObj     = new \Classes\ManipulaAnalise();
-$alertaObj      = new \Classes\ManipulaAlertas();
-$noticiaObj     = new \Classes\Noticia();
-$coresObj       = new \Classes\Cores();
-$logaObj        = new \Classes\Loga();
+$historico      = new Historico();
+$topico         = new Topicos();
+$pGrafico       = new Perfil();
+$reta           = new Retas();
+$negocio        = new Negocios();
+$corretoraObj   = new Corretoras();
+$cadObj         = new Cadastro();
+$analiseObj     = new ManipulaAnalise();
+$alertaObj      = new ManipulaAlertas();
+$noticiaObj     = new Noticia();
+$coresObj       = new Cores();
+$logaObj        = new Loga();
 
     echo "<h3>Home</h3>";
 

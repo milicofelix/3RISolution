@@ -6,7 +6,7 @@
  * Time: 17:19
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Topicos extends GraficoServer

@@ -6,7 +6,7 @@
  * Time: 15:28
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Alerta

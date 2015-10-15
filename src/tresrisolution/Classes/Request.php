@@ -6,7 +6,7 @@
  * Time: 16:45
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Request

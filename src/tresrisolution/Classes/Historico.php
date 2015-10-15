@@ -6,7 +6,7 @@
  * Time: 16:27
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Historico extends GraficoServer

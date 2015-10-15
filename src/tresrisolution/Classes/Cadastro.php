@@ -6,7 +6,7 @@
  * Time: 09:24
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Cadastro

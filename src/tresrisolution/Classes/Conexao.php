@@ -6,7 +6,7 @@
  * Time: 15:31
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 use \PDO;
 
 class Conexao

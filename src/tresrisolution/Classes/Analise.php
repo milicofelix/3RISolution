@@ -6,7 +6,7 @@
  * Time: 15:13
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Analise

@@ -6,7 +6,7 @@
  * Time: 11:38
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class ArrayList {

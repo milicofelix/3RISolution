@@ -6,9 +6,9 @@
  * Time: 15:34
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
-use Classes\Analise;
+use tresrisolution\Classes\Analise;
 
 class ManipulaAnalise extends GraficoServer
 {

@@ -6,7 +6,7 @@
  * Time: 13:23
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 use Entidades\AtivoCorrigidoEntity;
 use Interfaces\AtivoCorrigidoInterface;

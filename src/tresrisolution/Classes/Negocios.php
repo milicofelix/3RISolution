@@ -6,7 +6,7 @@
  * Time: 12:22
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Negocios

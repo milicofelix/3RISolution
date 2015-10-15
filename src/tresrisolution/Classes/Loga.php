@@ -6,7 +6,7 @@
  * Time: 14:45
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Loga

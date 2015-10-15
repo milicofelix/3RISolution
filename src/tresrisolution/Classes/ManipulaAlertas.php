@@ -6,7 +6,7 @@
  * Time: 12:19
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class ManipulaAlertas extends GraficoServer

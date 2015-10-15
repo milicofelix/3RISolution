@@ -6,7 +6,7 @@
  * Time: 09:17
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Retas

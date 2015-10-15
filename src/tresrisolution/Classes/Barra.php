@@ -6,7 +6,7 @@
  * Time: 15:10
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Barra

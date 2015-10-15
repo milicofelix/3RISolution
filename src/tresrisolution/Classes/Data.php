@@ -6,7 +6,7 @@
  * Time: 12:56
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Data extends \DateTime

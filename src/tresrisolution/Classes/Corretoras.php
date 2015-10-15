@@ -6,7 +6,7 @@
  * Time: 15:38
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 class Corretoras
 {

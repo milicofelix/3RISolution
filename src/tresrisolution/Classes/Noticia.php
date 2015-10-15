@@ -6,7 +6,7 @@
  * Time: 16:15
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Noticia

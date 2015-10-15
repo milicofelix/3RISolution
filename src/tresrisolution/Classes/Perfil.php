@@ -6,7 +6,7 @@
  * Time: 17:05
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Perfil extends GraficoServer

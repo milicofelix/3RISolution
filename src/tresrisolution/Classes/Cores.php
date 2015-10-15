@@ -6,7 +6,7 @@
  * Time: 10:26
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Cores

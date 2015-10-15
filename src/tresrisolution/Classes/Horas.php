@@ -6,7 +6,7 @@
  * Time: 09:43
  */
 
-namespace Classes;
+namespace tresrisolution\Classes;
 
 
 class Horas
