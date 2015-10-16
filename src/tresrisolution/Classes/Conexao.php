@@ -15,15 +15,51 @@ class Conexao
 
     private function __construct() {}
 
-    public static function getInstance()
+    public static function getInstance($ambiente)
         {
             if (!isset(self::$instance))
             {
-                self::$instance = new PDO("pgsql:host=localhost dbname=cotacoes user=postgres password=morango");
-                self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                self::$instance->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
-                echo "Conectou";
+                try {
+                    self::$instance = new PDO("pgsql:".self::ambienteInit($ambiente));
+                    self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    self::$instance->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
+                    echo "Conectou no ".$ambiente;
+                }catch (\PDOException $e){
+                    echo "Erro com a conexão: ".$e->getTraceAsString();exit();
+                }
             }
-            return self::$instance; }
+            return self::$instance;
+        }
+    public static function ambienteInit($ambiente){
+
+        switch($ambiente){
+            case 'local':
+                return self::getcfg('localhost.cfg');
+                break;
+
+            case 'cotacoes':
+                return self::getcfg('cotacoes_brt.cfg');
+                break;
+
+            case 'intranet':
+                return self::getcfg('intranet_brt.cfg');
+                break;
+
+            case 'intranetremoto':
+                return self::getcfg('intranet_remoto.cfg');
+                break;
+        }
+    }
+
+    public static function getcfg($nome)
+    {
+        if (($hf=fopen(ROOT.DS.'Config'.DS.$nome, 'r'))!=FALSE)
+        {
+            $linha=fgets($hf);
+            fclose($hf);
+            return $linha;
+        }
+        return '';
+    }
 
 }

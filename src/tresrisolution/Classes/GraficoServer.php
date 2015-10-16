@@ -11,37 +11,15 @@ namespace tresrisolution\Classes;
 
 class GraficoServer
 {
-    private $connectionCotacoes;
-        //private Statement  statementCotacoes;
 
-    private $connectionIntranet;
-    private $statementIntranet;
-
-    private $connectionIntranetRemoto;
-    private $statementIntranetRemoto;
-
-    //Thread threadAtualizaMemoria;
-
-        // <String=código do ativo,TreeMap=histórico do ativo>
+    // <String=código do ativo,TreeMap=histórico do ativo>
     //private LinkedHashMap<String,TreeMap<String,Barra>> mapHistoricos = new LinkedHashMap<String,TreeMap<String,Barra>>();
 
     protected $dataHoje = 0;
 
     private $atualizandoMemoria = false;
 
-    private $servidorLocal = "";
-
-        //private long lUltimoRequest = System.currentTimeMillis();
-
-    //final $configCotacoes = getConfig("/etc/apligraf/cotacoes_java.cfg");
-    //final $configIntranet = getConfig("/etc/apligraf/intranet.cfg");
-    //final $configIntranetRemoto = getConfig("/etc/apligraf/intranet_remoto.cfg");
-
-    //final String JDBC_DRIVER  = "org.postgresql.Driver";
-    //final String DATABASE_URL_COTACOES = "jdbc:postgresql://" + configCotacoes.host + "/" + configCotacoes.db;
-    //final String DATABASE_URL_INTRANET = "jdbc:postgresql://" + configIntranet.host + "/" + configIntranet.db;
-    //final String DATABASE_URL_INTRANET_REMOTO = "jdbc:postgresql://" + configIntranetRemoto.host + "/" + configIntranetRemoto.db;
-
+    protected $lUltimoRequest;
 
         // lista de ativos corrigidos
     protected $tamanhoListAC = 3000;
@@ -64,10 +42,14 @@ class GraficoServer
 
     protected $ultMinutoCacheMemoria = -1;
 
+    public function __construct(){
+
+        $this->lUltimoRequest = $this->currentTimeMillis();
+    }
+
 
     public function modulosContemGrupo($grupos, $modulos)
     {
-
         if( $modulos != null && !empty($modulos) )
         {
             $grupos  = str_replace($grupos,"|", ";");
@@ -83,6 +65,14 @@ class GraficoServer
         }
 
         return false;
+    }
+
+    public function currentTimeMillis(){
+
+        $timeparts = explode(" ",microtime());
+        $currenttime = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
+
+        return $currenttime;
     }
 
 }

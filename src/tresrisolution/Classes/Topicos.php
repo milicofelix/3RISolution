@@ -15,7 +15,7 @@ class Topicos extends GraficoServer
 
 	public function __construct(){
 
-		$this->conn	= Conexao::getInstance();
+		$this->conn	= Conexao::getInstance('local');
 	}
 
 	public function getTopico($ativo, $dh, $erro, $usuario, $corretora, $ultDHCorrecao, $ultDHAnalise, $listLicAnalises = array(), $bTemAnaliseGrauita, $modulos)

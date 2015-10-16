@@ -16,7 +16,7 @@ class Historico extends GraficoServer
     private $dt;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance();
+        $this->conn = Conexao::getInstance('cotacoes');
         $this->dt   = new Horas();
     }
 
@@ -50,7 +50,7 @@ class Historico extends GraficoServer
 	{
         $xml = "";
 
-        $tmHistorico = getHistoricoBanco2($ativo, $periodo, $horaFimPregao);
+        $tmHistorico = "";//getHistoricoBanco($ativo, $periodo, $horaFimPregao);
 
         if( count($tmHistorico) > 0 )
         {
@@ -97,15 +97,6 @@ class Historico extends GraficoServer
         return $xml;
 
 	}
-
-
-    public function currentTimeMillis(){
-
-        $timeparts = explode(" ",microtime());
-        $currenttime = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
-
-        return $currenttime;
-    }
 
     public function getHistoricoBanco($ativo, $periodo, $horaFimPregao)
 	{

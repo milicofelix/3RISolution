@@ -15,7 +15,7 @@ class Negocios
 
     public function __construct(){
 
-        $this->conn         = Conexao::getInstance();
+        $this->conn = Conexao::getInstance('local');
     }
 
     public function getNegocios($request)

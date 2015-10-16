@@ -15,7 +15,7 @@ class Retas
 
 	public function __construct(){
 
-		$this->conn         = Conexao::getInstance();
+		$this->conn  = Conexao::getInstance('local');
 	}
 
 	public function getRetas($request)
