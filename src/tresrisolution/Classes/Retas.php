@@ -15,10 +15,10 @@ class Retas
 
 	public function __construct(){
 
-		$this->conn  = Conexao::getInstance('local');
+		$this->conn  = Conexao::getInstance('cotacoes');
 	}
 
-	public function getRetas($request)
+	public function getRetas(Request $request)
 {
 
 	if( !$this->conn )
@@ -101,7 +101,7 @@ class Retas
 		return $xml;
 	}
 
-	public function salvaRetas($request)
+	public function salvaRetas(Request $request)
 	{
 		if( !$this->conn )
 		{
@@ -237,7 +237,7 @@ class Retas
 		return $xml;
 	}
 
-public function excluiRetas($request)
+public function excluiRetas(Request $request)
 	{
 		if( !$this->conn )
 		{

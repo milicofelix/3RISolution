@@ -15,7 +15,7 @@ class Loga
 
     public function __construct(){
 
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
 
     public function logaContingencia($erro, $usuario, $corretora)
@@ -53,7 +53,7 @@ catch(\PDOException $e)
         }
 	}
 
-public function logaEntrada($request)
+public function logaEntrada(Request $request)
 {
     $id = -1;
 
@@ -94,7 +94,7 @@ catch(\PDOException $e){}
 		return "<entrada>" . $id . "</entrada>";
 	}
 
-public function logaSaida($request)
+public function logaSaida(Request $request)
 {
     if( !$this->conn )
 
@@ -117,7 +117,7 @@ public function logaSaida($request)
 		}
 		catch(\PDOException $e) {}
 	}
-public function logaStatusConexao($request)
+public function logaStatusConexao(Request $request)
 	{
         if( !$this->conn )
             return;

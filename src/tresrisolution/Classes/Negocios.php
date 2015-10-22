@@ -15,10 +15,10 @@ class Negocios
 
     public function __construct(){
 
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
 
-    public function getNegocios($request)
+    public function getNegocios(Request $request)
 {
     //Connection connectionCotacoes = conexaoBancoCotacoes();
 
@@ -100,7 +100,7 @@ if( !$this->conn )
 		return $xml;
 	}
 
-    public function getdatasNegocios($request)
+    public function getdatasNegocios(Request $request)
 	{
         //Connection connectionCotacoes = conexaoBancoCotacoes();
 

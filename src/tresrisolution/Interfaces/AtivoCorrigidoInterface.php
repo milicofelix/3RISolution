@@ -6,8 +6,8 @@
  * Time: 12:59
  */
 
-namespace Interfaces;
-use Entidades\AtivoCorrigidoEntity;
+namespace tresrisolution\Interfaces;
+use tresrisolution\Entidades\AtivoCorrigidoEntity;
 
 interface AtivoCorrigidoInterface
 {

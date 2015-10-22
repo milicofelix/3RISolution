@@ -23,7 +23,7 @@ class Conexao
                     self::$instance = new PDO("pgsql:".self::ambienteInit($ambiente));
                     self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     self::$instance->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
-                    echo "Conectou no ".$ambiente;
+//                    echo "Conectou no ".$ambiente;
                 }catch (\PDOException $e){
                     echo "Erro com a conexão: ".$e->getTraceAsString();exit();
                 }

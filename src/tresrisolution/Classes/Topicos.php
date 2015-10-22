@@ -15,7 +15,7 @@ class Topicos extends GraficoServer
 
 	public function __construct(){
 
-		$this->conn	= Conexao::getInstance('local');
+		$this->conn	= Conexao::getInstance('cotacoes');
 	}
 
 	public function getTopico($ativo, $dh, $erro, $usuario, $corretora, $ultDHCorrecao, $ultDHAnalise, $listLicAnalises = array(), $bTemAnaliseGrauita, $modulos)
@@ -24,7 +24,7 @@ class Topicos extends GraficoServer
 
 
 	if( $this->bLog )
-		echo "Tempo para conectar BD: " . (currentTimeMillis() - $l) . "ms";
+		echo "Tempo para conectar BD: " . ($this->currentTimeMillis() - $l) . "ms";
 
 	if( !$this->conn )
 	{
@@ -39,7 +39,7 @@ class Topicos extends GraficoServer
 
 		try
         {
-            $l = currentTimeMillis();
+            $l = $this->currentTimeMillis();
 
             $sql = "SELECT dh, abertura, maxima, minima, ultima, abertura_dia, maxima_dia, minima_dia, " .
 					"volume, volume_dia, contratos_dia, fechamento, neg_dia, nm_ativo, cd_bolsa, ndec, vft_dia " .
@@ -57,7 +57,7 @@ class Topicos extends GraficoServer
         	//echo new java.util.Date().toString() + " contingencia: usuario=" + usuario + " corretora=" + corretora + " erro=" + erro);
 
 			if( $this->bLog )
-                echo "Tempo de consulta para TOPICO: " . (currentTimeMillis() - $l) . "ms";
+                echo "Tempo de consulta para TOPICO: " . ($this->currentTimeMillis() - $l) . "ms";
 
 			$xml .="<topico>";
 

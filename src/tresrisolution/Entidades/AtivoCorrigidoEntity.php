@@ -6,7 +6,7 @@
  * Time: 13:14
  */
 
-namespace Entidades;
+namespace tresrisolution\Entidades;
 
 
 class AtivoCorrigidoEntity
@@ -15,10 +15,10 @@ class AtivoCorrigidoEntity
     public $dh;
     public $codigo;
 
-    public function __construct($l, $s)
-    {
-        $this->dh = $l;
-        $this->codigo = $s;
-    }
+//    public function __construct($l, $s)
+//    {
+//        $this->dh = $l;
+//        $this->codigo = $s;
+//    }
 
 }

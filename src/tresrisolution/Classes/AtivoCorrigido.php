@@ -8,13 +8,13 @@
 
 namespace tresrisolution\Classes;
 
-use Entidades\AtivoCorrigidoEntity;
-use Interfaces\AtivoCorrigidoInterface;
+use tresrisolution\Entidades\AtivoCorrigidoEntity;
+use tresrisolution\Interfaces\AtivoCorrigidoInterface;
 
 class AtivoCorrigido implements AtivoCorrigidoInterface
 {
-        private $dh;
-		private $codigo;
+        protected $dh;
+		protected $codigo;
 
 public function __construct($l, $s)
     {
@@ -23,7 +23,7 @@ public function __construct($l, $s)
     }
 
 /**
- * @param \Entidades\AtivoCorrigidoEntity $ac
+ * @param \tresrisolution\Entidades\AtivoCorrigidoEntity $ac
  * @return int
  */
 public function compareTo(AtivoCorrigidoEntity $ac)

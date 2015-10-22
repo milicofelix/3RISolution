@@ -14,10 +14,10 @@ class Corretoras
 
     public function __construct(){
 
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
 
-    public function getListaCorretoras($request)
+    public function getListaCorretoras(Request $request)
 {
 
     if( !$this->conn )
@@ -34,7 +34,7 @@ class Corretoras
 
 		try
         {
-//            Set datas = new TreeSet<String>(); faltando implemntar....
+            $datas = array();
 
 			$sql = "SELECT cd_corretora, nm_corretora FROM corretora ORDER BY nm_corretora ASC ";
 

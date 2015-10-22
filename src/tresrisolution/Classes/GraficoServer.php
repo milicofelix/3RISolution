@@ -15,7 +15,7 @@ class GraficoServer
     // <String=código do ativo,TreeMap=histórico do ativo>
     //private LinkedHashMap<String,TreeMap<String,Barra>> mapHistoricos = new LinkedHashMap<String,TreeMap<String,Barra>>();
 
-    protected $dataHoje = 0;
+    protected $dataHoje;
 
     private $atualizandoMemoria = false;
 
@@ -45,6 +45,8 @@ class GraficoServer
     public function __construct(){
 
         $this->lUltimoRequest = $this->currentTimeMillis();
+        $this->listAC = new ArrayList();
+        $this->dataHoje = date('Ymd');
     }
 
 
@@ -54,10 +56,8 @@ class GraficoServer
         {
             $grupos  = str_replace($grupos,"|", ";");
             $modulos = str_replace($modulos,"|", ";");
-
             $vGrupos[]  = str_split($grupos,";");
             $vModulos[] = str_split($modulos,";");
-
             for( $i = 0; $i < count($vGrupos); $i++ )
                 for( $j = 0; $j < count($vModulos); $j++ )
                     if( in_array($vGrupos[$i],$vModulos[$j]) )

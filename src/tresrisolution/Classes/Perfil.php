@@ -15,10 +15,10 @@ class Perfil extends GraficoServer
     private $conn;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
 
-    public function getPerfisCompartilhados($request)
+    public function getPerfisCompartilhados(Request $request)
     {
         $xml = "";
         $ativoReferencia = $request->getParameter("ar");
@@ -54,7 +54,7 @@ class Perfil extends GraficoServer
 		return $xml;
 }
 
-    public function getPerfisCompartilhadosAnalista($request)
+    public function getPerfisCompartilhadosAnalista(Request $request)
     {
         $xml = "";
 
@@ -89,7 +89,7 @@ class Perfil extends GraficoServer
             return $xml;
         }
 
-    public function getPerfisCompartilhadosTodosAnalistas($request)
+    public function getPerfisCompartilhadosTodosAnalistas(Request $request)
 	{
         $xml = "";
 
@@ -128,7 +128,7 @@ class Perfil extends GraficoServer
 		return $xml;
 	}
 
-    public function salvaPerfilGrafico($request)
+    public function salvaPerfilGrafico(Request $request)
 	{
         if( !$this->conn ) //conexaoBancoIntranet
         {
@@ -533,7 +533,7 @@ class Perfil extends GraficoServer
 		return "<retorno>" . $retorno . "</retorno>";
 	}
 
-    public function getPerfisGrafico($request)
+    public function getPerfisGrafico(Request $request)
 	{
         if( !$this->conn ) //conexaoBancoIntranet
         {
@@ -571,7 +571,7 @@ class Perfil extends GraficoServer
 		return $xml;
 	}
 
-    public function getPerfilGrafico($request)
+    public function getPerfilGrafico(Request $request)
 	{
         if( !$this->conn ) //conexaoBancoIntranet
         {

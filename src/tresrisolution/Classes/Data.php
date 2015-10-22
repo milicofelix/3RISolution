@@ -15,9 +15,11 @@ class Data extends \DateTime
     private $minuto;
     private $segundo;
 
+
     /**
      * @return mixed
      */
+
     public function getHora()
     {
         $this->hora = $this->format('H');

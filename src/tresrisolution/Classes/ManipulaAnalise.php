@@ -8,7 +8,6 @@
 
 namespace tresrisolution\Classes;
 
-use tresrisolution\Classes\Analise;
 
 class ManipulaAnalise extends GraficoServer
 {
@@ -18,7 +17,7 @@ class ManipulaAnalise extends GraficoServer
     public function __construct(){
 
         $this->listAnalises = new Analise();
-        $this->conn         = Conexao::getInstance('local');
+        $this->conn         = Conexao::getInstance('cotacoes');
     }
 
 

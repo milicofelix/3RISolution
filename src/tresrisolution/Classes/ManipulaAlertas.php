@@ -16,11 +16,11 @@ class ManipulaAlertas extends GraficoServer
      *
      */
     public function __construct(){
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
         $this->listAlertas = new \ArrayObject(new Alerta());
     }
 
-    public function getAlertasAbasGrafico($request)
+    public function getAlertasAbasGrafico(Request $request)
     {
         //if( !conexaoBancoIntranet() )
         //{
@@ -221,7 +221,7 @@ class ManipulaAlertas extends GraficoServer
         }
 	}
 
-    public function excluiAlerta($request)
+    public function excluiAlerta(Request $request)
 	{
         if( !$this->conn ) //conexaoBancoIntranet
         {
@@ -271,7 +271,7 @@ class ManipulaAlertas extends GraficoServer
 		return $xml;
 	}
 
-    public function desativaAlerta($request)
+    public function desativaAlerta(Request $request)
 	{
         if( !$this->conn ) //conexaoBancoIntranet
         {

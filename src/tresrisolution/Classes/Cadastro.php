@@ -14,7 +14,7 @@ class Cadastro
     private $conn;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
 
     public function getCadastro()
@@ -55,7 +55,6 @@ if( !$this->conn )
 
                 foreach($result as $rs)
                 {
-                    //$xml .="<ativo>");
 
                     if( $rs->codigo != null )
                         $xml .= $rs->codigo;

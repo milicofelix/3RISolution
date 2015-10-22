@@ -14,10 +14,10 @@ class Noticia
     private $conn;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
     
-    public function getNoticias($request)
+    public function getNoticias(Request $request)
 {
     if( !$this->conn )
     {

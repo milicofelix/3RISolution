@@ -14,10 +14,10 @@ class Cores
     private $conn;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance('local');
+        $this->conn = Conexao::getInstance('cotacoes');
     }
 
-    public function getCores($request)
+    public function getCores(Request $request)
 {
 
     if( $request->getParameter("u") == null || trim($request->getParameter("u")) =="")
@@ -223,7 +223,7 @@ class Cores
 		return $xml;
 	}
 
-    public function salvaCores($request)
+    public function salvaCores(Request $request)
 	{
         if( $request->getParameter("u") == null || trim($request->getParameter("u")) == "" )
             return "<retorno>0</retorno>";
