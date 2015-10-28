@@ -17,7 +17,6 @@ class ManipulaAnalise extends GraficoServer
     public function __construct(){
 
         $this->listAnalises = new Analise();
-        $this->conn         = Conexao::getInstance('cotacoes');
     }
 
 

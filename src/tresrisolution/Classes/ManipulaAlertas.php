@@ -16,7 +16,6 @@ class ManipulaAlertas extends GraficoServer
      *
      */
     public function __construct(){
-        $this->conn = Conexao::getInstance('cotacoes');
         $this->listAlertas = new \ArrayObject(new Alerta());
     }
 

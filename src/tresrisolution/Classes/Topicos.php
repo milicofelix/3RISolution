@@ -13,13 +13,10 @@ class Topicos extends GraficoServer
 {
 	private $conn;
 
-	public function __construct(){
-
-		$this->conn	= Conexao::getInstance('cotacoes');
-	}
 
 	public function getTopico($ativo, $dh, $erro, $usuario, $corretora, $ultDHCorrecao, $ultDHAnalise, $listLicAnalises = array(), $bTemAnaliseGrauita, $modulos)
 {
+	echo 'entrou em getTopico';exit;
 	$l = 1212121212;//System.currentTimeMillis();Refatorar depois #####################################################################################
 
 

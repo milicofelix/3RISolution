@@ -13,13 +13,10 @@ class Retas
 {
 	private $conn;
 
-	public function __construct(){
-
-		$this->conn  = Conexao::getInstance('cotacoes');
-	}
-
 	public function getRetas(Request $request)
 {
+//    echo "Entrou no method getRetas";exit;
+	$this->conn = new ConexoesDB();
 
 	if( !$this->conn )
 {
@@ -28,7 +25,6 @@ class Retas
 }
 
 		$xml = "";
-		$rs = null;
 
 		try
         {
@@ -39,20 +35,16 @@ class Retas
 				$ativo   = $request->getParameter("ativo");
 				$periodo = $request->getParameter("periodo");
 
-				$sql = "SELECT data1, data2, hora1, hora2, val1, val2, texto, tipo, alerta, acionado, estudo, posicao_texto, id_anotacao".
-						"FROM retas_java".
-						"WHERE cd_empresa 	= ?".
-						" AND lower(ativo) 	= ?".
-						" AND periodo 		= ?".
-						" AND usuario 		= ?";
+				$sql = "SELECT data1, data2, hora1, hora2, val1, val2, texto, tipo, alerta, acionado, estudo, posicao_texto, id_anotacao
+						FROM retas_java
+						WHERE cd_empresa 	= $empresa
+						AND lower(ativo) 	= '$ativo'
+						AND periodo 		= '$periodo'
+						AND usuario 		= '$usuario'";
 
-				$stmt = $this->conn->prepare($sql);
-				$stmt->bindValue(1,$empresa);
-				$stmt->bindValue(2,$ativo);
-				$stmt->bindValue(3,$periodo);
-				$stmt->bindValue(4,$usuario);
+				$stmt = $this->conn->getInstance('intranet')->prepare($sql);;
 				$stmt->execute();
-				$result = $stmt->fetchObject();
+				$result = $stmt->fetchAll(\PDO::FETCH_OBJ);
 
 				$xml .= "<retas>";
 
@@ -71,8 +63,10 @@ class Retas
                     $xml .= "<v2>" . $rs->val2  . "</v2>";
 
                     $texto = $rs->texto;
-					if( preg_match('/</',$texto) )
+
+					if( preg_match('/</',$texto) ) {
                         $texto = preg_replace("/</", "abretag", $texto);
+                    }
 					$xml .= "<te>" . $texto . "</te>";
 
 					$xml .= "<ti>" . $rs->tipo  . "</ti>";
@@ -95,7 +89,7 @@ class Retas
         catch(\PDOException $e)
 		{
             echo "Erro ao tentar recuperar retas";
-            $e->getTraceAs();
+            $e->getTraceAsString();
         }
 
 		return $xml;
@@ -103,6 +97,8 @@ class Retas
 
 	public function salvaRetas(Request $request)
 	{
+		$this->conn = new ConexoesDB();
+        echo "Entramos no método salvaRetas";exit;
 		if( !$this->conn )
 		{
 			echo "Nao pude salvar Retas por nao conseguir conexao com o banco INTRANET";
@@ -133,14 +129,14 @@ class Retas
 					$periodo = $periodoAnt;
 				}
 
-				$data1[] 	= $request->getParameter("d1") != null ? $request->getParameter("d1").split(";") : null;
-				$hora1[] 	= $request->getParameter("h1") != null ? $request->getParameter("h1").split(";") : null;
-				$val1[]  	= $request->getParameter("v1") != null ? $request->getParameter("v1").split(";") : null;
-				$data2[] 	= $request->getParameter("d2") != null ? $request->getParameter("d2").split(";") : null;
-				$hora2[] 	= $request->getParameter("h2") != null ? $request->getParameter("h2").split(";") : null;
-				$val2[]  	= $request->getParameter("v2") != null ? $request->getParameter("v2").split(";") : null;
-				$texto[] 	= $request->getParameter("tx") != null ? $request->getParameter("tx").split(";") : null;
-				$tipo[]  	= $request->getParameter("tp") != null ? $request->getParameter("tp").split(";") : null;
+				$data1[] 	= $request->getParameter("d1") != null ? explode(';',$request->getParameter("d1")) : null;
+				$hora1[] 	= $request->getParameter("h1") != null ? explode(';',$request->getParameter("h1")) : null;
+				$val1[]  	= $request->getParameter("v1") != null ? explode(';',$request->getParameter("v1")) : null;
+				$data2[] 	= $request->getParameter("d2") != null ? explode(';',$request->getParameter("d2")) : null;
+				$hora2[] 	= $request->getParameter("h2") != null ? explode(';',$request->getParameter("h2")) : null;
+				$val2[]  	= $request->getParameter("v2") != null ? explode(';',$request->getParameter("v2")) : null;
+				$texto[] 	= $request->getParameter("tx") != null ? explode(';',$request->getParameter("tx")) : null;
+				$tipo[]  	= $request->getParameter("tp") != null ? explode(';',$request->getParameter("tp")) : null;
 
 				$alerta[]   = null;
 				$acionado[] = null;
@@ -165,54 +161,52 @@ class Retas
 					$id[]      	= explode(";",$request->getParameter("ia"));
 				}
 
-				$xml .= "DELETE FROM retas_java WHERE usuario = ?" .
-					" AND cd_empresa = ?".
-					" AND ativo = ?"  .
-					" AND periodo = ?";
+				$xml .= "DELETE FROM retas_java WHERE usuario = '$usuario'
+							AND cd_empresa = '$empresa'
+							AND ativo = '$ativo'
+							AND periodo = '$periodo'";
 
-				$stmt = $this->conn->prepare($xml);
-				$stmt->bindValue(1,$usuario);
-				$stmt->bindValue(2,$empresa);
-				$stmt->bindValue(3,$ativo);
-				$stmt->bindValue(4,$periodo);
+				$stmt = $this->conn->getInstance('intranet')->prepare($xml);
   				$retorno = $stmt->execute();
-
 				//Terá que executar em outro ambiente, ainda não foi implementado
 				try{$stmt->execute();}catch(\PDOException $e){$e->getTraceAsString();}
 
   				for( $i = 0; $data1 != null && $i < count($data1); $i++ )
   				{
 					$xml = "";
-					$xml .= "INSERT INTO retas_java VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-					$stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
-					$stmt->bindValue(2, 'xxxxxxxx' , \PDO::PARAM_STR);
-					$stmt->bindValue(3, $empresa , \PDO::PARAM_STR);
-					$stmt->bindValue(4, $ativo, \PDO::PARAM_STR);
-					$stmt->bindValue(5, $periodo, \PDO::PARAM_STR);
-					$stmt->bindValue(6, 'now()', \PDO::PARAM_STR);
-					$stmt->bindValue(7, $data1[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(8, $data2[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(9, $hora1[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(10,$hora2[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(11,$val1[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(12,$val2[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(13,$texto[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(14,$tipo[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(15,$alerta[$i], \PDO::PARAM_STR);
-					$stmt->bindValue(16,($acionado[$i] == "1") ? "t" : "f" . "'", \PDO::PARAM_STR);
-					$stmt->bindValue(17,(count($estudo) > $i) ? $estudo[$i] : "", \PDO::PARAM_STR);
-					$stmt->bindValue(18, null, \PDO::PARAM_STR);
-					$stmt->bindValue(19, null, \PDO::PARAM_STR);
+					$xml .= "INSERT INTO retas_java VALUES
+                                                        (
+                                                          ,'$usuario'
+                                                          ,'xxxxxxxx'
+                                                          ,'$empresa'
+                                                          ,'$ativo'
+                                                          ,'$periodo'
+                                                          ,'now()'
+                                                          ,'$data1[$i]'
+                                                          ,'$data2[$i]'
+                                                          ,'$hora1[$i]'
+                                                          ,'$hora2[$i]'
+                                                          ,'$val1[$i]'
+                                                          ,'$val2[$i]'
+                                                          ,'$texto[$i]'
+                                                          ,'$texto[$i]'
+                                                          ,'$tipo[$i]'
+                                                          ,'$alerta[$i]'
+                                                          ,'($acionado[$i] == \"1\") ? \"t\" : \"f\"'
+                                                          ,'count($estudo) > $i) ? $estudo[$i] : \"\"'
+                                                          ,null
+                                                          ,null
+                                                        )";
 
   					if( $posicao != null && count($posicao) > $i )
 					{
-						$stmt->bindValue(18, $posicao[$i], \PDO::PARAM_STR);
-						$stmt->bindValue(19, $id[$i], \PDO::PARAM_STR);
+                        $xml .= $posicao[$i];
+						$xml .= $id[$i];
   					}
 					else
 					{
-						$stmt->bindValue(18, '1', \PDO::PARAM_STR);
-						$stmt->bindValue(19, '-1', \PDO::PARAM_STR);
+                        $xml .= '1';
+						$xml .= '-1';
 					}
 
   					$retorno = $stmt->execute();
@@ -239,6 +233,7 @@ class Retas
 
 public function excluiRetas(Request $request)
 	{
+        echo 'Entrou no method excluiRetas';exit;
 		if( !$this->conn )
 		{
 			echo "Nao pude excluir Retas por nao conseguir conexao com o banco INTRANET";
@@ -266,16 +261,11 @@ public function excluiRetas(Request $request)
 					$periodo = $periodoAnt;
 				}
 
-				 $sql = "DELETE FROM retas_java WHERE usuario = ?".
-				" AND cd_empresa = ?" .
-				" AND ativo = ?"  .
-				" AND periodo = ?";
-
-				$stmt = $this->conn->prepare($sql);
-				$stmt->bindValue(1,$usuario);
-				$stmt->bindValue(2,$empresa);
-				$stmt->bindValue(3,$ativo);
-				$stmt->bindValue(3,$periodo);
+				 $sql = "DELETE FROM retas_java WHERE usuario = '$usuario'".
+				" AND cd_empresa = $empresa" .
+				" AND ativo = '$ativo'"  .
+				" AND periodo = '$periodo'?";
+				$stmt = $this->conn->getInstance('intranet')->prepare($sql);
 
 
   				$retorno = $stmt->execute();

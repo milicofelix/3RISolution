@@ -14,7 +14,6 @@ class Noticia
     private $conn;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance('cotacoes');
     }
     
     public function getNoticias(Request $request)

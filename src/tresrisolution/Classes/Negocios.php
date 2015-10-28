@@ -15,7 +15,6 @@ class Negocios
 
     public function __construct(){
 
-        $this->conn = Conexao::getInstance('cotacoes');
     }
 
     public function getNegocios(Request $request)

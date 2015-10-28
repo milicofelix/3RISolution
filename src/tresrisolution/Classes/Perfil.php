@@ -8,18 +8,14 @@
 
 namespace tresrisolution\Classes;
 
-
 class Perfil extends GraficoServer
 {
     protected $listAnalises = array();
     private $conn;
 
-    public function __construct(){
-        $this->conn = Conexao::getInstance('cotacoes');
-    }
-
     public function getPerfisCompartilhados(Request $request)
     {
+        echo "Entrou no method getPerfisCompartilhados";exit;
         $xml = "";
         $ativoReferencia = $request->getParameter("ar");
         $licencas = $request->getParameter("l"); // licenças dos analistas que o usuário tem permissão para ver análises
@@ -56,6 +52,7 @@ class Perfil extends GraficoServer
 
     public function getPerfisCompartilhadosAnalista(Request $request)
     {
+        echo "Entrou no method getPerfisCompartilhadosAnalista";exit;
         $xml = "";
 
         $licenca = 0;
@@ -91,6 +88,7 @@ class Perfil extends GraficoServer
 
     public function getPerfisCompartilhadosTodosAnalistas(Request $request)
 	{
+        echo "Entrou no method getPerfisCompartilhadosTodosAnalistas";exit;
         $xml = "";
 
 		$licencas = $request->getParameter("l"); // licenças dos analistas que o usuário tem permissão para ver análises
@@ -130,14 +128,9 @@ class Perfil extends GraficoServer
 
     public function salvaPerfilGrafico(Request $request)
 	{
-        if( !$this->conn ) //conexaoBancoIntranet
-        {
-            echo "Nao pude salvar Perfil por nao conseguir conexao com o banco INTRANET";
-            return "";
-        }
+        echo "Entrou no method salvaPerfilGrafico";exit;
 
         $xml = "";
-		$rs = null;
 
 		try
         {
@@ -480,14 +473,9 @@ class Perfil extends GraficoServer
 
     public function excluiPerfilGrafico($request)
 	{
-        if( !$this->conn ) //conexaoBancoIntranet
-        {
-            echo "Nao pude excluir Perfil por nao conseguir conexao com o banco INTRANET";
-            return "";
-        }
+        echo "Entrou no method excluiPerfilGrafico";exit;
 
         $xml = "";
-		$rs = null;
 		$retorno = 1;
 
 		try
@@ -535,16 +523,15 @@ class Perfil extends GraficoServer
 
     public function getPerfisGrafico(Request $request)
 	{
+
+        $this->conn = new ConexoesDB();
+
         if( !$this->conn ) //conexaoBancoIntranet
         {
             echo "Nao pude recuperar Perfis por nao conseguir conexao com o banco INTRANET";
             return "";
         }
-
         $xml = "";
-
-		$rs = null;
-		$statement = null;
 
 		try
         {
@@ -555,49 +542,52 @@ class Perfil extends GraficoServer
 
             $sql = "SELECT nm_perfil FROM perfil_grafico_java WHERE usuario = '" . $usuario . "' AND cd_empresa = " . $empresa . " ORDER BY dh_ult_acesso DESC";
 
-				$rs = $statement->executeQuery($sql);
+            $stmt = $this->conn->getInstance('intranet')->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+//            echo '<pre>';
+//            print_r($result);exit;
 
-				$xml .= "<perfis>";
+            $xml .= "<perfis>";
 
-				while( $rs->next() )
-                    $xml .= "<p>" . $rs->nm_perfil . "</p>";
-
+            foreach($result as $rs)
+                $xml .= "<p>" . $rs['nm_perfil'] . "</p>";
 				$xml .= "</perfis>";
 		}
         catch(\PDOException $e)
 		{
-            echo "Erro ao tentar recuperar perfis";
+
+            echo "Erro ao tentar recuperar perfis: ".$e->getMessage();exit;
         }
 		return $xml;
 	}
 
     public function getPerfilGrafico(Request $request)
 	{
-        if( !$this->conn ) //conexaoBancoIntranet
-        {
-            echo "Nao pude recuperar Perfil por nao conseguir conexao com o banco INTRANET";
-            return "";
-        }
+//        echo "Entrou no method getPerfilGrafico";exit;
 
         $xml = "";
 
-		$rs = null;
 
 		try
         {
-             $usuario = $request->getParameter("u");
-				 $empresa = $request->getParameter("e");
-				 $perfil  = $request->getParameter("p");
+            $usuario = $request->getParameter("u");
+            $empresa = $request->getParameter("e");
+            $perfil  = $request->getParameter("p");
 
-				 $sql = "SELECT * FROM perfil_grafico_java WHERE usuario = '" . $usuario . "' AND cd_empresa = " . $empresa;
-				if( $perfil != null && !empty($perfil) )
-                    $sql .= " AND nm_perfil = '" . $perfil . "'";
-                else
-                    $sql .= " ORDER BY dh_ult_acesso DESC LIMIT 1";
+            $sql = "SELECT * FROM perfil_grafico_java WHERE usuario = '" . $usuario . "' AND cd_empresa = " . $empresa;
+            if( $perfil != null && !empty($perfil) )
+                $sql .= " AND nm_perfil = '" . $perfil . "'";
+            else
+                $sql .= " ORDER BY dh_ult_acesso DESC LIMIT 1";
 
-				$rs = $statementIntranet->executeQuery($sql);
+            $this->conn = new ConexoesDB();
 
-				if( $rs->next() )
+            $stmt = $this->conn->getInstance('intranet')->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+				foreach($result as $rs )
                 {
                     $xml .= "<perfil>";
                     $xml .= "<p>"      . $rs->nm_perfil         . "</p>";
@@ -724,10 +714,15 @@ class Perfil extends GraficoServer
 
 			    try
                 {
-                    $rs = $statementIntranet->executeQuery("SELECT * FROM perfil_grafico_java_estudo WHERE cd_perfil = " . $rs->cd_perfil . " ORDER BY cd_perfil_estudo");
+
+                    $sql = "SELECT * FROM perfil_grafico_java_estudo WHERE cd_perfil = " . $rs->cd_perfil . " ORDER BY cd_perfil_estudo";
+                    $this->conn = new ConexoesDB();
+                    $stmt = $this->conn->getInstance('intranet')->prepare($sql);
+                    $stmt->execute();
+                    $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
 
                     $nEstudo = 1;
-					while( $rs->next() )
+					foreach($result as $rs)
                     {
                         $xml .= "<estudo>";
                         $xml .= "<e".$nEstudo.">"    . $rs->estudo        . "</e".$nEstudo.">";

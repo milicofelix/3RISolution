@@ -14,7 +14,6 @@ class Cadastro
     private $conn;
 
     public function __construct(){
-        $this->conn = Conexao::getInstance('cotacoes');
     }
 
     public function getCadastro()

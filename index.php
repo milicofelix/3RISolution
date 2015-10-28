@@ -8,7 +8,6 @@
  */
 //header('Content-Type: charset=utf-8');
 
-
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT',dirname(__FILE__));
 ini_set('date.timezone', 'America/Sao_Paulo');
@@ -52,7 +51,7 @@ $xml = "";
 $xml .= "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";
 $xml .= "<grafico>";
 
-//		// verifica se o usuário pediu série histórica
+//		// verifica se o usuï¿½rio pediu sï¿½rie histï¿½rica
 if( $request->getParameter("serie") != null && !empty(trim($request->getParameter("serie"))) )
 {
 	$ativo          = strtoupper($request->getParameter("ativo"));
@@ -75,31 +74,31 @@ if( $request->getParameter("serie") != null && !empty(trim($request->getParamete
 	{
 		$v[] = explode(',',$tmp);//vivoFDPdoCaralho
 
-		if( $periodo == 0 && count($v) > 0 ) // número de barras para diário
+		if( $periodo == 0 && count($v) > 0 ) // nï¿½mero de barras para diï¿½rio
 			$nBarras = $v[0];
 
-		else if( $periodo == 1 && count($v) > 1 ) // número de barras para intraday de 1 min
+		else if( $periodo == 1 && count($v) > 1 ) // nï¿½mero de barras para intraday de 1 min
 			$nBarras = $v[1];
 
-		else if( $periodo == 5 && count($v) > 2 ) // número de barras para intraday de 5 min
+		else if( $periodo == 5 && count($v) > 2 ) // nï¿½mero de barras para intraday de 5 min
 			$nBarras = $v[2];
 
-		else if( $periodo == 15 && count($v) > 3 ) // número de barras para intraday de 15 min
+		else if( $periodo == 15 && count($v) > 3 ) // nï¿½mero de barras para intraday de 15 min
 			$nBarras = $v[3];
 	}
 
-	if( $request->getParameter("serie") == "1" ) // histórico completo
+	if( $request->getParameter("serie") == "1" ) // histï¿½rico completo
 	{
 		$xml .= $historico->getHistorico($ativo, $periodo, $horaFimPregao, false, false, $nBarras);
 
 	}
-	if( $request->getParameter("serie") == "2" ) // histórico apenas de hoje
+	if( $request->getParameter("serie") == "2" ) // histï¿½rico apenas de hoje
 		$xml .= $historico->getHistorico($ativo, $periodo, $horaFimPregao, true, false, $nBarras);
 
-	if( $request->getParameter("serie") == "3" ) // histórico diário de um indexador
+	if( $request->getParameter("serie") == "3" ) // histï¿½rico diï¿½rio de um indexador
 		$xml .= $historico->getHistorico($ativo, $periodo, $horaFimPregao, false, true, $nBarras);
 
-	if( $request->getParameter("serie") == "4") // histórico de Últimas para o Compar$ativo
+	if( $request->getParameter("serie") == "4") // histï¿½rico de ï¿½ltimas para o Compar$ativo
 	{
 		$ativos[] = explode(';',$ativo);
 		for( $i = 0; $i < count($ativos); $i++ )
@@ -112,6 +111,7 @@ if( $request->getParameter("serie") != null && !empty(trim($request->getParamete
 
 if( $request->getParameter("topico") != null && !empty(trim($request->getParameter("topico"))))
 {
+	echo "Entrou em topico";exit;
 	$ativo = strtoupper($request->getParameter("ativo"));
 	$dh = $request->getParameter("dh");
 	$erro = $request->getParameter("erro");
@@ -145,78 +145,72 @@ if( $request->getParameter("topico") != null && !empty(trim($request->getParamet
 			catch(ErrorException $e){echo $e->getTraceAsString();}
 	}
 
-	if( $request->getParameter("topico") == "1" ) // tópico compatível com o ALL2 do Feeder
+	if( $request->getParameter("topico") == "1" ) // tï¿½pico compatï¿½vel com o ALL2 do Feeder
 		$xml .= $topico->getTopico($ativo, $dh, $erro, $usuario, $corretora, $ultdhCorrecao, $ultdhAnalise, $listLicAnalises, $analiseGratuita != null && $analiseGratuita == "1", $modulos);
-	echo "Entrou no topico";
 }
 
 
 if( $request->getParameter("perfil") != null )
 {
-	// usuário pediu a lista de nomes de perfis + um perfil completo
+	// usuï¿½rio pediu a lista de nomes de perfis + um perfil completo
 	if( $request->getParameter("perfil") == "0")
 	{
 		$xml .= $pGrafico->getPerfisGrafico($request);
 		$xml .= $pGrafico->getPerfilGrafico($request);
 	}
 
-	// usuário pediu um perfil específico
+	// usuï¿½rio pediu um perfil especï¿½fico
 	if( $request->getParameter("perfil") == "1")
 		$xml .= $pGrafico->getPerfilGrafico($request);
 
-	// usuário mandou salvar um perfil
+	// usuï¿½rio mandou salvar um perfil
 	if( $request->getParameter("perfil") == "2")
 		$xml .= $pGrafico->salvaPerfilGrafico($request);
 
-	// usuário mandou excluir um perfil
+	// usuï¿½rio mandou excluir um perfil
 	if( $request->getParameter("perfil") == "3")
 		$xml .= $pGrafico->excluiPerfilGrafico($request);
 
-	// usuário pediu lista de perfis compartilhados
+	// usuï¿½rio pediu lista de perfis compartilhados
 	if( $request->getParameter("perfil") == "4")
 		$xml .= $pGrafico->getPerfisCompartilhados($request);
 
-	// usuário pediu lista de todos os perfis compartilhados por uma dado analista
+	// usuï¿½rio pediu lista de todos os perfis compartilhados por uma dado analista
 	if( $request->getParameter("perfil") == "5")
 		$xml .= $pGrafico->getPerfisCompartilhadosAnalista($request);
 
-	// usuário pediu lista de todos os perfis compartilhados por todos analistas que ele tem direito
+	// usuï¿½rio pediu lista de todos os perfis compartilhados por todos analistas que ele tem direito
 	if( $request->getParameter("perfil") == "6")
 		$xml .= $pGrafico->getPerfisCompartilhadosTodosAnalistas($request);
-	echo "Entrou no perfil";
 }
 
 if( $request->getParameter("reta") != null )
 {
-	// usuário pediu retas
+	// usuï¿½rio pediu retas
 	if( $request->getParameter("reta") == "1")
 		$xml .= $reta->getRetas($request);
 
-	// usuário mandou salvar retas
+	// usuï¿½rio mandou salvar retas
 	if( $request->getParameter("reta") == "2")
 		$xml .= $reta->salvaRetas($request);
 
-	// usuário mandou excluir retas
+	// usuï¿½rio mandou excluir retas
 	if( $request->getParameter("reta") == "3")
 		$xml .= $reta->excluiRetas($request);
-
-	echo "Entrou no reta";
 }
 
 if( $request->getParameter("salvaretaant") != null )
 {
-	// usuário mandou salvar retas do $ativo anterior
+	// usuï¿½rio mandou salvar retas do $ativo anterior
 	if( $request->getParameter("salvaretaant") == "1")
 		$xml .= $reta->salvaRetas($request);
-	echo "Entrou no salvaretaant";
 }
 
 if( $request->getParameter("apagaretaant") != null )
 {
-	// usuário mandou excluir retas
+	// usuï¿½rio mandou excluir retas
 	if( $request->getParameter("apagaretaant") == "1")
 		$xml .= $reta->excluiRetas($request);
-	echo "Entrou no apagaretaant";
 }
 
 if( $request->getParameter("negocio") != null )
@@ -311,7 +305,7 @@ $xml .= "</grafico>";
 
 echo $xml;
 
-// faz log das atualizações via contingência
+// faz log das atualizaï¿½ï¿½es via contingï¿½ncia
 if( $request->getParameter("topico") != null && !empty(trim($request->getParameter("topico"))))
 {
 	$erro = $request->getParameter("erro");

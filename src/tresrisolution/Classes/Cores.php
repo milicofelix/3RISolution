@@ -13,12 +13,9 @@ class Cores
 {
     private $conn;
 
-    public function __construct(){
-        $this->conn = Conexao::getInstance('cotacoes');
-    }
-
     public function getCores(Request $request)
 {
+    $this->conn = new ConexoesDB();
 
     if( $request->getParameter("u") == null || trim($request->getParameter("u")) =="")
 
@@ -37,18 +34,20 @@ class Cores
 
 		try
         {
-                $usuario = $request->getParameter("u");
-				$empresa = $request->getParameter("e");
 
-				$sql = "SELECT * FROM smartweb_cor_grafico WHERE nm_usuario = ? AND cd_empresa = ? ";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
-                $stmt->execute();
+            $usuario = $request->getParameter("u");
+            $empresa = $request->getParameter("e");
 
-				$xml .= "<cores>";
+            $sql = "SELECT * FROM smartweb_cor_grafico WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+            $stmt = $this->conn->getInstance('intranet')->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+//            echo '<pre>';
+//            print_r($result);exit;
 
-				if( $rs = $stmt->nextRowset())
+            $xml .= "<cores>";
+
+				foreach($result as $rs)
                 {
                     $xml .= "<fb>"  . $rs->fundo_barras . "</fb>";
                     $xml .= "<bg>"  . $rs->borda_grafico . "</bg>";
@@ -93,15 +92,13 @@ class Cores
                     $xml .= "<ed2>" . $rs->escala_dia2 . "</ed2>";
                 }
 
-
 				// aba Overlay
-				$sql = "SELECT * FROM smartweb_cor_overlay WHERE nm_usuario = ? AND cd_empresa = ? ";
-				$stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
+				$sql = "SELECT * FROM smartweb_cor_overlay WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+                $stmt = $this->conn->getInstance('intranet')->prepare($sql);
                 $stmt->execute();
+                $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
 
-				if( $rs = $stmt->nextRowset() )
+                foreach($result as $rs)
                 {
                     $xml .= "<mm1>" . $rs->media_movel1 . "</mm1>";
                     $xml .= "<mm2>" . $rs->media_movel2 . "</mm2>";
@@ -145,13 +142,14 @@ class Cores
                 }
 
 				// aba Retas
-				$sql = "SELECT * FROM smartweb_cor_ferramenta WHERE nm_usuario = ? AND cd_empresa = ? ";
-				$stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
+				$sql = "SELECT * FROM smartweb_cor_ferramenta WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+                $stmt = $this->conn->getInstance('intranet')->prepare($sql);
                 $stmt->execute();
+                $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+//                echo '<pre>';
+//                print_r($result);exit;
 
-				if( $rs = $stmt->nextRowset() )
+                foreach($result as $rs)
                 {
                     $xml .= "<ms>" . $rs->magnetica_sup . "</ms>";
                     $xml .= "<mr>" . $rs->magnetica_res . "</mr>";
@@ -190,13 +188,14 @@ class Cores
                 }
 
 				// aba Estudos
-				$sql = "SELECT * FROM smartweb_cor_estudo WHERE nm_usuario = ? AND cd_empresa = ? ";
-				$stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
+				$sql = "SELECT * FROM smartweb_cor_estudo WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+                $stmt = $this->conn->getInstance('intranet')->prepare($sql);
                 $stmt->execute();
+                $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+//                    echo '<pre>';
+//                    print_r($result);exit;
 
-				if( $rs = $stmt->nextRowset() )
+                foreach($result as $rs)
                 {
                     $xml .= "<l1>" . $rs->linha1 . "</l1>";
                     $xml .= "<l2>" . $rs->linha2 . "</l2>";
@@ -225,6 +224,8 @@ class Cores
 
     public function salvaCores(Request $request)
 	{
+        $this->conn = new ConexoesDB();
+
         if( $request->getParameter("u") == null || trim($request->getParameter("u")) == "" )
             return "<retorno>0</retorno>";
 
@@ -245,388 +246,394 @@ class Cores
 
 				$bExiste = false;
 
-				$sql = "SELECT nm_usuario FROM smartweb_cor_grafico WHERE nm_usuario = ? AND cd_empresa = ? ";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
+				$sql = "SELECT nm_usuario FROM smartweb_cor_grafico WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+                $stmt = $this->conn->getInstance('intranet')->prepare($sql);
                 $stmt->execute();
+                $result = $stmt->fetch(\PDO::FETCH_OBJ);
+//                    echo '<pre>';
+//                    print_r($stmt->execute());exit;
 
-            if( $rs = $stmt->nextRowset() )
+            if( $result )
                     $bExiste = true;
 
 				if( !$bExiste )
                 {
-                    
 
-                    $xml .= "INSERT INTO smartweb_cor_grafico VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                    $stmt->bindValue(1,$usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(2,$empresa, \PDO::PARAM_STR);
-                    $stmt->bindValue(3,$request->getParameter("fb"), \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("bg") , \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("fj") , \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("g") , \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("ca") , \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("cb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(9, $request->getParameter("cd") , \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("cao") , \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("cbo") , \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("ba") , \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("bb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("bao") , \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("bbo") , \PDO::PARAM_STR);
-                    $stmt->bindValue(16, $request->getParameter("ma") , \PDO::PARAM_STR);
-                    $stmt->bindValue(17, $request->getParameter("mf") , \PDO::PARAM_STR);
-                    $stmt->bindValue(18, $request->getParameter("l") , \PDO::PARAM_STR);
-                    $stmt->bindValue(19, $request->getParameter("m") , \PDO::PARAM_STR);
-                    $stmt->bindValue(20, $request->getParameter("va") , \PDO::PARAM_STR);
-                    $stmt->bindValue(21, $request->getParameter("vb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(22, $request->getParameter("ve") , \PDO::PARAM_STR);
-                    $stmt->bindValue(23, $request->getParameter("obv") , \PDO::PARAM_STR);
-                    $stmt->bindValue(24, $request->getParameter("fv") , \PDO::PARAM_STR);
-                    $stmt->bindValue(25, $request->getParameter("cua") , \PDO::PARAM_STR);
-                    $stmt->bindValue(26, $request->getParameter("cub") , \PDO::PARAM_STR);
-                    $stmt->bindValue(27, $request->getParameter("cy") , \PDO::PARAM_STR);
-                    $stmt->bindValue(28, $request->getParameter("uca") , \PDO::PARAM_STR);
-                    $stmt->bindValue(29, $request->getParameter("ucb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(30, $request->getParameter("cab") , \PDO::PARAM_STR);
-                    $stmt->bindValue(31, $request->getParameter("ep") , \PDO::PARAM_STR);
-                    $stmt->bindValue(32, $request->getParameter("fua") , \PDO::PARAM_STR);
-                    $stmt->bindValue(33, $request->getParameter("fub") , \PDO::PARAM_STR);
-                    $stmt->bindValue(34, $request->getParameter("fue") , \PDO::PARAM_STR);
-                    $stmt->bindValue(35, $request->getParameter("tua") , \PDO::PARAM_STR);
-                    $stmt->bindValue(36, $request->getParameter("tub") , \PDO::PARAM_STR);
-                    $stmt->bindValue(37, $request->getParameter("tue") , \PDO::PARAM_STR);
-                    $stmt->bindValue(38, $request->getParameter("ea") , \PDO::PARAM_STR);
-                    $stmt->bindValue(39, $request->getParameter("em1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(40, $request->getParameter("em2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(41, $request->getParameter("em") , \PDO::PARAM_STR);
-                    $stmt->bindValue(42, $request->getParameter("ed1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(43, $request->getParameter("ed2") , \PDO::PARAM_STR);
+                    $xml = "";
+                    $xml .= "INSERT INTO smartweb_cor_grafico VALUES(
+                                                                      '$usuario'
+                                                                      ,$empresa
+                                                                      ,'".$request->getParameter('fb')."'"."
+                                                                       ,'".$request->getParameter('bg')."'"."
+                                                                       ,'".$request->getParameter('fj')."'"."
+                                                                       ,'".$request->getParameter('g')."'"."
+                                                                       ,'".$request->getParameter('ca')."'"."
+                                                                       ,'".$request->getParameter('cb')."'"."
+                                                                       ,'".$request->getParameter('cd')."'"."
+                                                                       ,'".$request->getParameter('cao')."'"."
+                                                                       ,'".$request->getParameter('cbo')."'"."
+                                                                       ,'".$request->getParameter('ba')."'"."
+                                                                       ,'".$request->getParameter('bb')."'"."
+                                                                       ,'".$request->getParameter('bao')."'"."
+                                                                       ,'".$request->getParameter('bbo')."'"."
+                                                                       ,'".$request->getParameter('ma')."'"."
+                                                                       ,'".$request->getParameter('mf')."'"."
+                                                                       ,'".$request->getParameter('l')."'"."
+                                                                       ,'".$request->getParameter('m')."'"."
+                                                                       ,'".$request->getParameter('va')."'"."
+                                                                       ,'".$request->getParameter('vb')."'"."
+                                                                       ,'".$request->getParameter('ve')."'"."
+                                                                       ,'".$request->getParameter('obv')."'"."
+                                                                       ,'".$request->getParameter('fv')."'"."
+                                                                       ,'".$request->getParameter('cua')."'"."
+                                                                       ,'".$request->getParameter('cub')."'"."
+                                                                       ,'".$request->getParameter('cy')."'"."
+                                                                       ,'".$request->getParameter('uca')."'"."
+                                                                       ,'".$request->getParameter('ucb')."'"."
+                                                                       ,'".$request->getParameter('cab')."'"."
+                                                                       ,'".$request->getParameter('ep')."'"."
+                                                                       ,'".$request->getParameter('fua')."'"."
+                                                                       ,'".$request->getParameter('fub')."'"."
+                                                                       ,'".$request->getParameter('fue')."'"."
+                                                                       ,'".$request->getParameter('tua')."'"."
+                                                                       ,'".$request->getParameter('tub')."'"."
+                                                                       ,'".$request->getParameter('tue')."'"."
+                                                                       ,'".$request->getParameter('ea')."'"."
+                                                                       ,'".$request->getParameter('em1')."'"."
+                                                                       ,'".$request->getParameter('em2')."'"."
+                                                                       ,'".$request->getParameter('em')."'"."
+                                                                       ,'".$request->getParameter('ed1')."'"."
+                                                                       ,'".$request->getParameter('fua')."'"."
+                                                                    )";
+
                 }
                 else
                 {
-
-                    $xml .= "UPDATE smartweb_cor_grafico SET dh = ?, fundo_barras = ?, borda_grafico = ?, fundo_janela = ?, grid = ?, candle_alta = ?, candle_baixa = ?, candle_doji = ?, candle_alta_on = ?
-                                                             ,candle_baixa_on = ?, barra_alta = ?, barra_baixa = ?, barra_alta_on = ?, barra_baixa_on = ?, marca_abe = ?, marca_fec = ?, linha = ?, montanha = ?
-                                                             ,volume_alta = ?, volume_baixa = ?, volume_estavel = ?, obv = ?, fundo_volume = ?, cursor_ultima_alta = ?, cursor_ultima_baixa = ?, cursor_y = ?
-                                                             ,ultima_cursor_alta = ?, ultima_cursor_baixa = ?, cabecalho = ?, escala_preco = ?, fundo_ultima_alta = ?, fundo_ultima_baixa = ?, fundo_ultima_estavel = ?
-                                                             ,texto_ultima_alta = ?, texto_ultima_baixa = ?, texto_ultima_estavel = ?, escala_ano = ?, escala_mes1 = ?, escala_mes2 = ?, escala_mes = ?, escala_dia1 = ?
-                                                             ,escala_dia2 = ? WHERE nm_usuario = ? AND cd_empresa = ?";
+                    $xml = "";
+                    $xml .= "UPDATE smartweb_cor_grafico SET
+                                                            dh = 'now()'
+                                                            , fundo_barras = '".$request->getParameter('fb')."'"."
+                                                            , borda_grafico = '".$request->getParameter('bg')."'"."
+                                                            , fundo_janela = '".$request->getParameter('fj')."'"."
+                                                            , grid = '".$request->getParameter('g')."'"."
+                                                            , candle_alta = '".$request->getParameter('ca')."'"."
+                                                            , candle_baixa = '".$request->getParameter('cb')."'"."
+                                                            , candle_doji = '".$request->getParameter('cd')."'"."
+                                                            , candle_alta_on = '".$request->getParameter('cao')."'"."
+                                                            ,candle_baixa_on = '".$request->getParameter('cbo')."'"."
+                                                            , barra_alta = '".$request->getParameter('ba')."'"."
+                                                            , barra_baixa = '".$request->getParameter('bb')."'"."
+                                                            , barra_alta_on = '".$request->getParameter('bao')."'"."
+                                                            , barra_baixa_on = '".$request->getParameter('bbo')."'"."
+                                                            , marca_abe = '".$request->getParameter('ma')."'"."
+                                                            , marca_fec = '".$request->getParameter('mf')."'"."
+                                                            , linha = '".$request->getParameter('l')."'"."
+                                                            , montanha = '".$request->getParameter('m')."'"."
+                                                            ,volume_alta = '".$request->getParameter('va')."'"."
+                                                            , volume_baixa = '".$request->getParameter('vb')."'"."
+                                                            , volume_estavel = '".$request->getParameter('ve')."'"."
+                                                            , obv = '".$request->getParameter('obv')."'"."
+                                                            , fundo_volume = '".$request->getParameter('fv')."'"."
+                                                            , cursor_ultima_alta = '".$request->getParameter('cua')."'"."
+                                                            , cursor_ultima_baixa = '".$request->getParameter('cub')."'"."
+                                                            , cursor_y = '".$request->getParameter('cy')."'"."
+                                                            ,ultima_cursor_alta = '".$request->getParameter('uca')."'"."
+                                                            , ultima_cursor_baixa = '".$request->getParameter('ucb')."'"."
+                                                            , cabecalho = '".$request->getParameter('cab')."'"."
+                                                            , escala_preco = '".$request->getParameter('ep')."'"."
+                                                            , fundo_ultima_alta = '".$request->getParameter('fua')."'"."
+                                                            , fundo_ultima_baixa = '".$request->getParameter('fub')."'"."
+                                                            , fundo_ultima_estavel = '".$request->getParameter('fue')."'"."
+                                                            ,texto_ultima_alta = '".$request->getParameter('tua')."'"."
+                                                            , texto_ultima_baixa = '".$request->getParameter('tub')."'"."
+                                                            , texto_ultima_estavel = '".$request->getParameter('tue')."'"."
+                                                            , escala_ano = '".$request->getParameter('ea')."'"."
+                                                            , escala_mes1 = '".$request->getParameter('em1')."'"."
+                                                            , escala_mes2 = '".$request->getParameter('em2')."'"."
+                                                            , escala_mes = '".$request->getParameter('em')."'"."
+                                                            , escala_dia1 = '".$request->getParameter('ed1')."'"."
+                                                            ,escala_dia2 = '".$request->getParameter('ed2')."'"."
+                                                        WHERE nm_usuario = $usuario
+                                                        AND cd_empresa = $empresa";
                 }
-
-                    $stmt->bindValue(1, 'now()', \PDO::PARAM_STR);
-                    $stmt->bindValue(2, $request->getParameter("fb"), \PDO::PARAM_STR);
-                    $stmt->bindValue(3, $request->getParameter("bg") , \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("fj") , \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("g") , \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("ca") , \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("cb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("cd") , \PDO::PARAM_STR);
-                    $stmt->bindValue(9, $request->getParameter("cao") , \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("cbo") , \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("ba") , \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("bb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("bao") , \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("bbo") , \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("ma") , \PDO::PARAM_STR);
-                    $stmt->bindValue(16, $request->getParameter("mf") , \PDO::PARAM_STR);
-                    $stmt->bindValue(17, $request->getParameter("l") , \PDO::PARAM_STR);
-                    $stmt->bindValue(18, $request->getParameter("m") , \PDO::PARAM_STR);
-                    $stmt->bindValue(19, $request->getParameter("va") , \PDO::PARAM_STR);
-                    $stmt->bindValue(20, $request->getParameter("vb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(21, $request->getParameter("ve") , \PDO::PARAM_STR);
-                    $stmt->bindValue(22, $request->getParameter("obv") , \PDO::PARAM_STR);
-                    $stmt->bindValue(23, $request->getParameter("fv") , \PDO::PARAM_STR);
-                    $stmt->bindValue(24, $request->getParameter("cua") , \PDO::PARAM_STR);
-                    $stmt->bindValue(25, $request->getParameter("cub") , \PDO::PARAM_STR);
-                    $stmt->bindValue(26, $request->getParameter("cy") , \PDO::PARAM_STR);
-                    $stmt->bindValue(27, $request->getParameter("uca") , \PDO::PARAM_STR);
-                    $stmt->bindValue(28, $request->getParameter("ucb") , \PDO::PARAM_STR);
-                    $stmt->bindValue(29, $request->getParameter("cab") , \PDO::PARAM_STR);
-                    $stmt->bindValue(30, $request->getParameter("ep") , \PDO::PARAM_STR);
-                    $stmt->bindValue(31, $request->getParameter("fua") , \PDO::PARAM_STR);
-                    $stmt->bindValue(32, $request->getParameter("fub") , \PDO::PARAM_STR);
-                    $stmt->bindValue(33, $request->getParameter("fue") , \PDO::PARAM_STR);
-                    $stmt->bindValue(34, $request->getParameter("tua") , \PDO::PARAM_STR);
-                    $stmt->bindValue(35, $request->getParameter("tub") , \PDO::PARAM_STR);
-                    $stmt->bindValue(36, $request->getParameter("tue") , \PDO::PARAM_STR);
-                    $stmt->bindValue(37, $request->getParameter("ea") , \PDO::PARAM_STR);
-                    $stmt->bindValue(38, $request->getParameter("em1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(39, $request->getParameter("em2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(40, $request->getParameter("em") , \PDO::PARAM_STR);
-                    $stmt->bindValue(41, $request->getParameter("ed1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(42, $request->getParameter("ed2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(43,$usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(44,$empresa, \PDO::PARAM_STR);
 
                     $retorno = $stmt->execute();
 
+
   				// aba Overlay
 				$bExiste = false;
-
-				$xml .= "SELECT nm_usuario FROM smartweb_cor_overlay WHERE nm_usuario = ? AND cd_empresa = ? ";
-                $stmt = $this->conn->prepare($xml);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
+                $xml = "";
+                $xml .= "SELECT nm_usuario FROM smartweb_cor_overlay WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+                $stmt = $this->conn->getInstance('intranet')->prepare($xml);
                 $stmt->execute();
+                $result = $stmt->fetch(\PDO::FETCH_OBJ);
+//                    echo '<pre>';
+//                    print_r($stmt);exit;
 
-            if( $rs = $stmt->nextRowset() )
+            if( $result )
                     $bExiste = true;
 
 				if( !$bExiste )
                 {
-                    $xml .= "INSERT INTO smartweb_cor_overlay VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                    $stmt->bindValue(1,$usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(2,$empresa, \PDO::PARAM_STR);
-                    $stmt->bindValue(3,'now()', \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("mm1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("mm2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("mm3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("mm4") , \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("mm5") , \PDO::PARAM_STR);
-                    $stmt->bindValue(9, $request->getParameter("bs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("bc") , \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("bi") , \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("bf") , \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("hla") , \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("k1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("k2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(16, $request->getParameter("k3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(17, $request->getParameter("tf") , \PDO::PARAM_STR);
-                    $stmt->bindValue(18, $request->getParameter("s1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(19, $request->getParameter("s2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(20, $request->getParameter("s3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(21, $request->getParameter("s4") , \PDO::PARAM_STR);
-                    $stmt->bindValue(22, $request->getParameter("s5") , \PDO::PARAM_STR);
-                    $stmt->bindValue(23, $request->getParameter("sar") , \PDO::PARAM_STR);
-                    $stmt->bindValue(24, $request->getParameter("e1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(25, $request->getParameter("e2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(26, $request->getParameter("e3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(27, $request->getParameter("hl1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(28, $request->getParameter("hl2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(29, $request->getParameter("pv") , \PDO::PARAM_STR);
-                    $stmt->bindValue(30, $request->getParameter("ps1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(31, $request->getParameter("ps2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(32, $request->getParameter("ps3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(33, $request->getParameter("pr1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(34, $request->getParameter("pr2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(35, $request->getParameter("pr3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(36, $request->getParameter("c1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(37, $request->getParameter("c2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(38, $request->getParameter("c3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(39, $request->getParameter("c4") , \PDO::PARAM_STR);
-                    $stmt->bindValue(40, $request->getParameter("c5") , \PDO::PARAM_STR);
-                    $stmt->bindValue(41, $request->getParameter("c6") , \PDO::PARAM_STR);
-                    $stmt->bindValue(42, $request->getParameter("p") , \PDO::PARAM_STR);
+                    $xml = "";
+                    $xml .= "INSERT INTO smartweb_cor_overlay VALUES(
+                                                                      '$usuario'
+                                                                      ,$empresa
+                                                                      ,'now()'
+                                                                      ,'".$request->getParameter('mm1')."'"."
+                                                                      ,'".$request->getParameter('mm2')."'"."
+                                                                      ,'".$request->getParameter('mm3')."'"."
+                                                                      ,'".$request->getParameter('mm4')."'"."
+                                                                      ,'".$request->getParameter('mm5')."'"."
+                                                                      ,'".$request->getParameter('bs')."'"."
+                                                                      ,'".$request->getParameter('bc')."'"."
+                                                                      ,'".$request->getParameter('bi')."'"."
+                                                                      ,'".$request->getParameter('bf')."'"."
+                                                                      ,'".$request->getParameter('hla')."'"."
+                                                                      ,'".$request->getParameter('k1')."'"."
+                                                                      ,'".$request->getParameter('k2')."'"."
+                                                                      ,'".$request->getParameter('k3')."'"."
+                                                                      ,'".$request->getParameter('tf')."'"."
+                                                                      ,'".$request->getParameter('s1')."'"."
+                                                                      ,'".$request->getParameter('s2')."'"."
+                                                                      ,'".$request->getParameter('s3')."'"."
+                                                                      ,'".$request->getParameter('s4')."'"."
+                                                                      ,'".$request->getParameter('s5')."'"."
+                                                                      ,'".$request->getParameter('sar')."'"."
+                                                                      ,'".$request->getParameter('e1')."'"."
+                                                                      ,'".$request->getParameter('e2')."'"."
+                                                                      ,'".$request->getParameter('e3')."'"."
+                                                                      ,'".$request->getParameter('hl1')."'"."
+                                                                      ,'".$request->getParameter('hl2')."'"."
+                                                                      ,'".$request->getParameter('pv')."'"."
+                                                                      ,'".$request->getParameter('ps1')."'"."
+                                                                      ,'".$request->getParameter('ps2')."'"."
+                                                                      ,'".$request->getParameter('ps3')."'"."
+                                                                      ,'".$request->getParameter('pr1')."'"."
+                                                                      ,'".$request->getParameter('pr2')."'"."
+                                                                      ,'".$request->getParameter('pr3')."'"."
+                                                                      ,'".$request->getParameter('c1')."'"."
+                                                                      ,'".$request->getParameter('c2')."'"."
+                                                                      ,'".$request->getParameter('c3')."'"."
+                                                                      ,'".$request->getParameter('c4')."'"."
+                                                                      ,'".$request->getParameter('c5')."'"."
+                                                                      ,'".$request->getParameter('c6')."'"."
+                                                                      ,'".$request->getParameter('p')."'"."
+                                                                    )";
 
                 }
                 else
                 {
-                    $xml .= "UPDATE smartweb_cor_overlay SET dh = ?, media_movel1 = ?, media_movel2 = ?, media_movel3 = ?, media_movel4 = ?, media_movel5 = ?, bol_superior = ?, bol_central = ? ,bol_inferior = ?
-                                                             ,bol_fundo = ?, highlow_activator = ?, keltner1 = ?, keltner2 = ?, keltner3 = ?, toposfuntos = ?, sobreposto1 = ?, sobreposto2 = ?, sobreposto3 = ?
-                                                             ,sobreposto4 = ?, sobreposto5 = ?, sar = ?, envelope1 = ?, envelope2 = ?, envelope3 = ?, highlow1 ?, highlow2 = ?, pivot = ?, pivot_sup1 = ?, pivot_sup2 = ?
-                                                             ,pivot_sup3 = ?, pivot_res1 = ?, pivot_res2 = ?, pivot_res3 = ?, comparativo1 = ?, comparativo2 = ?, comparativo3 = ? ,comparativo4 = ?, comparativo5 = ?
-                                                             ,comparativo6 = ? ,provento = ? WHERE nm_usuario = ? AND cd_empresa = ?";
+                    $xml = "";
+                    $xml .= "UPDATE smartweb_cor_overlay SET
+                                                              dh = 'now()'
+                                                            , media_movel1 = '".$request->getParameter('mm1')."'"."
+                                                            , media_movel2 = '".$request->getParameter('mm2')."'"."
+                                                            , media_movel3 = '".$request->getParameter('mm3')."'"."
+                                                            , media_movel4 = '".$request->getParameter('mm4')."'"."
+                                                            , media_movel5 = '".$request->getParameter('mm5')."'"."
+                                                            , bol_superior = '".$request->getParameter('bs')."'"."
+                                                            , bol_central  = '".$request->getParameter('bc')."'"."
+                                                            , bol_inferior = '".$request->getParameter('bi')."'"."
+                                                            , bol_fundo    = '".$request->getParameter('bf')."'"."
+                                                            , highlow_activator = '".$request->getParameter('hla')."'"."
+                                                            , keltner1 = '".$request->getParameter('k1')."'"."
+                                                            , keltner2 = '".$request->getParameter('k2')."'"."
+                                                            , keltner3 = '".$request->getParameter('k3')."'"."
+                                                            , toposfuntos = '".$request->getParameter('tf')."'"."
+                                                            , sobreposto1 = '".$request->getParameter('s1')."'"."
+                                                            , sobreposto2 = '".$request->getParameter('s2')."'"."
+                                                            , sobreposto3 = '".$request->getParameter('s3')."'"."
+                                                            , sobreposto4 = '".$request->getParameter('s4')."'"."
+                                                            , sobreposto5 = '".$request->getParameter('s5')."'"."
+                                                            , sar = '".$request->getParameter('sar')."'"."
+                                                            , envelope1 = '".$request->getParameter('e1')."'"."
+                                                            , envelope2 = '".$request->getParameter('e2')."'"."
+                                                            , envelope3 = '".$request->getParameter('e3')."'"."
+                                                            , highlow1 = '".$request->getParameter('hl1')."'"."
+                                                            , highlow2 = '".$request->getParameter('hl2')."'"."
+                                                            , pivot = '".$request->getParameter('pv')."'"."
+                                                            , pivot_sup1 = '".$request->getParameter('ps1')."'"."
+                                                            , pivot_sup2 = '".$request->getParameter('ps2')."'"."
+                                                            ,pivot_sup3 = '".$request->getParameter('ps3')."'"."
+                                                            , pivot_res1 = '".$request->getParameter('pr1')."'"."
+                                                            , pivot_res2 = '".$request->getParameter('pr2')."'"."
+                                                            , pivot_res3 = '".$request->getParameter('pr3')."'"."
+                                                            , comparativo1 = '".$request->getParameter('c1')."'"."
+                                                            , comparativo2 = '".$request->getParameter('c2')."'"."
+                                                            , comparativo3 = '".$request->getParameter('c3')."'"."
+                                                            , comparativo4 = '".$request->getParameter('c4')."'"."
+                                                            , comparativo5 = '".$request->getParameter('c5')."'"."
+                                                            ,comparativo6 = '".$request->getParameter('c6')."'"."
+                                                            ,provento  = '".$request->getParameter('p')."'"."
+                                                        WHERE nm_usuario = '$usuario'
+                                                        AND cd_empresa = $empresa";
                 }
-
-
-                    $stmt->bindValue(1,'now()', \PDO::PARAM_STR);
-                    $stmt->bindValue(2, $request->getParameter("mm1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(3, $request->getParameter("mm2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("mm3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("mm4") , \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("mm5") , \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("bs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("bc") , \PDO::PARAM_STR);
-                    $stmt->bindValue(9, $request->getParameter("bi") , \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("bf") , \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("hla") , \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("k1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("k2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("k3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("tf") , \PDO::PARAM_STR);
-                    $stmt->bindValue(16, $request->getParameter("s1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(17, $request->getParameter("s2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(18, $request->getParameter("s3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(19, $request->getParameter("s4") , \PDO::PARAM_STR);
-                    $stmt->bindValue(20, $request->getParameter("s5") , \PDO::PARAM_STR);
-                    $stmt->bindValue(21, $request->getParameter("sar") , \PDO::PARAM_STR);
-                    $stmt->bindValue(22, $request->getParameter("e1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(23, $request->getParameter("e2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(24, $request->getParameter("e3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(25, $request->getParameter("hl1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(26, $request->getParameter("hl2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(27, $request->getParameter("pv") , \PDO::PARAM_STR);
-                    $stmt->bindValue(28, $request->getParameter("ps1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(29, $request->getParameter("ps2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(30, $request->getParameter("ps3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(31, $request->getParameter("pr1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(32, $request->getParameter("pr2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(33, $request->getParameter("pr3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(34, $request->getParameter("c1") , \PDO::PARAM_STR);
-                    $stmt->bindValue(35, $request->getParameter("c2") , \PDO::PARAM_STR);
-                    $stmt->bindValue(36, $request->getParameter("c3") , \PDO::PARAM_STR);
-                    $stmt->bindValue(37, $request->getParameter("c4") , \PDO::PARAM_STR);
-                    $stmt->bindValue(38, $request->getParameter("c5") , \PDO::PARAM_STR);
-                    $stmt->bindValue(39, $request->getParameter("c6") , \PDO::PARAM_STR);
-                    $stmt->bindValue(40, $request->getParameter("p") , \PDO::PARAM_STR);
-                    $stmt->bindValue(1,$usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(2,$empresa, \PDO::PARAM_STR);
 
             $retorno = $stmt->execute();
 
 
             // aba Retas
             $bExiste = false;
-
+            $xml = "";
             $xml .= "SELECT nm_usuario
                         FROM smartweb_cor_ferramenta
-                        WHERE nm_usuario = ?
-                        AND cd_empresa = ?";
+                        WHERE nm_usuario = '$usuario'
+                        AND cd_empresa = $empresa";
 
-            $stmt = $this->conn->prepare($xml);
-            $stmt->bindValue(1,$usuario);
-            $stmt->bindValue(2,$empresa);
+            $stmt = $this->conn->getInstance('intranet')->prepare($xml);
             $stmt->execute();
+            $result = $stmt->fetch(\PDO::FETCH_OBJ);
+//                    echo '<pre>';
+//                    print_r($stmt);exit;
 
-            if( $rs = $stmt->nextRowset() )
+            if( $result )
                     $bExiste = true;
 
 				if( !$bExiste )
                 {
 
-
-                    $xml .= "INSERT INTO smartweb_cor_ferramenta VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                    $stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(2, $empresa, \PDO::PARAM_STR);
-                    $stmt->bindValue(3, 'now()' , \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("ms") , \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("mr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("mfs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("mfr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("ps") , \PDO::PARAM_STR);
-                    $stmt->bindValue(9, $request->getParameter("pr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("fs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("fr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("es") , \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("er") , \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("f") , \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("r") , \PDO::PARAM_STR);
-                    $stmt->bindValue(16, $request->getParameter("fbr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(17, $request->getParameter("fe") , \PDO::PARAM_STR);
-                    $stmt->bindValue(18, $request->getParameter("t") , \PDO::PARAM_STR);
-                    $stmt->bindValue(19, $request->getParameter("td") , \PDO::PARAM_STR);
-                    $stmt->bindValue(20, $request->getParameter("dh") , \PDO::PARAM_STR);
-                    $stmt->bindValue(21, $request->getParameter("dhd") , \PDO::PARAM_STR);
-                    $stmt->bindValue(22, $request->getParameter("hs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(23, $request->getParameter("hr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(24, $request->getParameter("hms") , \PDO::PARAM_STR);
-                    $stmt->bindValue(25, $request->getParameter("hmr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(26, $request->getParameter("hmfs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(27, $request->getParameter("hmfr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(28, $request->getParameter("hvus") , \PDO::PARAM_STR);
-                    $stmt->bindValue(29,$request->getParameter("hvur") , \PDO::PARAM_STR);
-                    $stmt->bindValue(30, $request->getParameter("shs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(31, $request->getParameter("shr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(32, $request->getParameter("ns") , \PDO::PARAM_STR);
-                    $stmt->bindValue(33, $request->getParameter("nr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(34, $request->getParameter("vy") , \PDO::PARAM_STR);
-                    $stmt->bindValue(35, $request->getParameter("vyd") , \PDO::PARAM_STR);
-                    $stmt->bindValue(36, $request->getParameter("el") , \PDO::PARAM_STR);
-                    $stmt->bindValue(37, $request->getParameter("re") , \PDO::PARAM_STR);
+                    $xml = "";
+                    $xml .= "INSERT INTO smartweb_cor_ferramenta VALUES(
+                                                                         $usuario
+                                                                         ,$empresa
+                                                                         ,'now()'
+                                                                         ,'".$request->getParameter('ms')."'"."
+                                                                         ,'".$request->getParameter('mr')."'"."
+                                                                         ,'".$request->getParameter('mfs')."'"."
+                                                                         ,'".$request->getParameter('mfr')."'"."
+                                                                         ,'".$request->getParameter('ps')."'"."
+                                                                         ,'".$request->getParameter('pr')."'"."
+                                                                         ,'".$request->getParameter('fs')."'"."
+                                                                         ,'".$request->getParameter('fr')."'"."
+                                                                         ,'".$request->getParameter('es')."'"."
+                                                                         ,'".$request->getParameter('er')."'"."
+                                                                         ,'".$request->getParameter('f')."'"."
+                                                                         ,'".$request->getParameter('r')."'"."
+                                                                         ,'".$request->getParameter('fbr')."'"."
+                                                                         ,'".$request->getParameter('fe')."'"."
+                                                                         ,'".$request->getParameter('t')."'"."
+                                                                         ,'".$request->getParameter('td')."'"."
+                                                                         ,'".$request->getParameter('dh')."'"."
+                                                                         ,'".$request->getParameter('dhd')."'"."
+                                                                         ,'".$request->getParameter('hs')."'"."
+                                                                         ,'".$request->getParameter('hr')."'"."
+                                                                         ,'".$request->getParameter('hms')."'"."
+                                                                         ,'".$request->getParameter('hmr')."'"."
+                                                                         ,'".$request->getParameter('hmfs')."'"."
+                                                                         ,'".$request->getParameter('hmfr')."'"."
+                                                                         ,'".$request->getParameter('hvus')."'"."
+                                                                         ,'".$request->getParameter('hvur')."'"."
+                                                                         ,'".$request->getParameter('shs')."'"."
+                                                                         ,'".$request->getParameter('shr')."'"."
+                                                                         ,'".$request->getParameter('ns')."'"."
+                                                                         ,'".$request->getParameter('nr')."'"."
+                                                                         ,'".$request->getParameter('vy')."'"."
+                                                                         ,'".$request->getParameter('vyd')."'"."
+                                                                         ,'".$request->getParameter('el')."'"."
+                                                                         ,'".$request->getParameter('re')."'"."
+                                                                        )";
 
                 }
                 else
                 {
-
-                    $xml .= "UPDATE smartweb_cor_ferramenta SET dh = ?, magnetica_sup = ?, magnetica_res = ?, magnetica_fec_sup = ?, magnetica_fec_res = ?, projetada_sup = ?, projetada_res = ?, fixa_sup = ?
-                                                                ,fixa_res = ?, evolucao_sup = ?, evolucao_res = ?, fibonacci = ?, retracement = ?, fibo_retracement = ?, fibo_extension = ?, texto = ?, texto_deslocado = ?
-                                                                ,data_hora = ?, data_hora_deslocada = ?, horizontal_sup = ?, horizontal_res = ?, horizontal_mag_sup = ?, horizontal_mag_res = ?, horizontal_mag_fec_sup = ?
-                                                                ,horizontal_mag_fec_res	 = ?, horizontal_var_ult_sup = ?, horizontal_var_ult_res = ?, stop_horizontal_sup = ?, stop_horizontal_res = ?, reta_nivel_sup = ?
-                                                                ,reta_nivel_res = ?, valor_y = ?, valor_y_deslocado = ?, elipse = ?, retangulo = ?
-                                                            WHERE nm_usuario = ? AND cd_empresa = ?";
+                    $xml = "";
+                    $xml .= "UPDATE smartweb_cor_ferramenta SET
+                                                                dh = 'now()'
+                                                                , magnetica_sup = '".$request->getParameter('ms')."'"."
+                                                                , magnetica_res = '".$request->getParameter('mr')."'"."
+                                                                , magnetica_fec_sup = '".$request->getParameter('mfs')."'"."
+                                                                , magnetica_fec_res = '".$request->getParameter('mfr')."'"."
+                                                                , projetada_sup = '".$request->getParameter('ps')."'"."
+                                                                , projetada_res = '".$request->getParameter('pr')."'"."
+                                                                , fixa_sup = '".$request->getParameter('fs')."'"."
+                                                                ,fixa_res = '".$request->getParameter('fr')."'"."
+                                                                , evolucao_sup = '".$request->getParameter('es')."'"."
+                                                                , evolucao_res = '".$request->getParameter('er')."'"."
+                                                                , fibonacci = '".$request->getParameter('f')."'"."
+                                                                , retracement = '".$request->getParameter('r')."'"."
+                                                                , fibo_retracement = '".$request->getParameter('fbr')."'"."
+                                                                , fibo_extension = '".$request->getParameter('fe')."'"."
+                                                                , texto = '".$request->getParameter('t')."'"."
+                                                                , texto_deslocado = '".$request->getParameter('td')."'"."
+                                                                ,data_hora = '".$request->getParameter('dh')."'"."
+                                                                , data_hora_deslocada = '".$request->getParameter('dhd')."'"."
+                                                                , horizontal_sup = '".$request->getParameter('hs')."'"."
+                                                                , horizontal_res = '".$request->getParameter('hr')."'"."
+                                                                , horizontal_mag_sup = '".$request->getParameter('hms')."'"."
+                                                                , horizontal_mag_res = '".$request->getParameter('hmr')."'"."
+                                                                , horizontal_mag_fec_sup = '".$request->getParameter('hmfs')."'"."
+                                                                ,horizontal_mag_fec_res	 = '".$request->getParameter('hmfr')."'"."
+                                                                , horizontal_var_ult_sup = '".$request->getParameter('hvus')."'"."
+                                                                , horizontal_var_ult_res = '".$request->getParameter('hvur')."'"."
+                                                                , stop_horizontal_sup = '".$request->getParameter('shs')."'"."
+                                                                , stop_horizontal_res = '".$request->getParameter('shr')."'"."
+                                                                , reta_nivel_sup = '".$request->getParameter('ns')."'"."
+                                                                ,reta_nivel_res = '".$request->getParameter('nr')."'"."
+                                                                , valor_y = '".$request->getParameter('vy')."'"."
+                                                                , valor_y_deslocado = '".$request->getParameter('vyd')."'"."
+                                                                , elipse = '".$request->getParameter('el')."'"."
+                                                                , retangulo = '".$request->getParameter('re')."'"."
+                                                            WHERE nm_usuario = '$usuario'
+                                                            AND cd_empresa = $empresa";
                 }
-
-                    $stmt->bindValue(1, 'now()' , \PDO::PARAM_STR);
-                    $stmt->bindValue(2, $request->getParameter("ms") , \PDO::PARAM_STR);
-                    $stmt->bindValue(3, $request->getParameter("mr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("mfs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("mfr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("ps") , \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("pr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("fs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(9, $request->getParameter("fr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("es") , \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("er") , \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("f") , \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("r") , \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("fbr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("fe") , \PDO::PARAM_STR);
-                    $stmt->bindValue(16, $request->getParameter("t") , \PDO::PARAM_STR);
-                    $stmt->bindValue(17, $request->getParameter("td") , \PDO::PARAM_STR);
-                    $stmt->bindValue(18, $request->getParameter("dh") , \PDO::PARAM_STR);
-                    $stmt->bindValue(19, $request->getParameter("dhd") , \PDO::PARAM_STR);
-                    $stmt->bindValue(20, $request->getParameter("hs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(21, $request->getParameter("hr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(22, $request->getParameter("hms") , \PDO::PARAM_STR);
-                    $stmt->bindValue(23, $request->getParameter("hmr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(24, $request->getParameter("hmfs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(25, $request->getParameter("hmfr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(26, $request->getParameter("hvus") , \PDO::PARAM_STR);
-                    $stmt->bindValue(27,$request->getParameter("hvur") , \PDO::PARAM_STR);
-                    $stmt->bindValue(28, $request->getParameter("shs") , \PDO::PARAM_STR);
-                    $stmt->bindValue(29, $request->getParameter("shr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(30, $request->getParameter("ns") , \PDO::PARAM_STR);
-                    $stmt->bindValue(31, $request->getParameter("nr") , \PDO::PARAM_STR);
-                    $stmt->bindValue(32, $request->getParameter("vy") , \PDO::PARAM_STR);
-                    $stmt->bindValue(33, $request->getParameter("vyd") , \PDO::PARAM_STR);
-                    $stmt->bindValue(34, $request->getParameter("el") , \PDO::PARAM_STR);
-                    $stmt->bindValue(35, $request->getParameter("re") , \PDO::PARAM_STR);
-                    $stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(2, $empresa, \PDO::PARAM_STR);
 
             $retorno = $stmt->execute();
 
   			// aba Estudos
             $bExiste = false;
+            $xml = "";
+            $xml .= "SELECT nm_usuario FROM smartweb_cor_estudo WHERE nm_usuario = '$usuario' AND cd_empresa = $empresa ";
+            $stmt = $this->conn->getInstance('intranet')->prepare($xml);
+            $stmt->execute();
+            $result = $stmt->fetch(\PDO::FETCH_OBJ);
+//                        echo '<pre>';
+//                        print_r($result);exit;
 
-				$xml .= "SELECT nm_usuario FROM smartweb_cor_estudo WHERE nm_usuario = ? AND cd_empresa = ? ";
-                $stmt = $this->conn->prepare($xml);
-                $stmt->bindValue(1,$usuario);
-                $stmt->bindValue(2,$empresa);
-                $stmt->execute();
-
-                if( $rs = $stmt->nextRowset() )
+                if($result)
                     $bExiste = true;
 
 				if( !$bExiste )
                 {
-                    $xml .= "INSERT INTO smartweb_cor_estudo VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                    $stmt->bindValue(1, $usuario, \PDO::PARAM_STR);
-                    $stmt->bindValue(2, $empresa, \PDO::PARAM_STR);
-                    $stmt->bindValue(3, 'now()' , \PDO::PARAM_STR);
-                    $stmt->bindValue(4, $request->getParameter("linha1"), \PDO::PARAM_STR);
-                    $stmt->bindValue(5, $request->getParameter("linha2"), \PDO::PARAM_STR);
-                    $stmt->bindValue(6, $request->getParameter("linha3"), \PDO::PARAM_STR);
-                    $stmt->bindValue(7, $request->getParameter("linha4"), \PDO::PARAM_STR);
-                    $stmt->bindValue(8, $request->getParameter("linha5"), \PDO::PARAM_STR);
-                    $stmt->bindValue(9,  $request->getParameter("histograma_positivo"), \PDO::PARAM_STR);
-                    $stmt->bindValue(10, $request->getParameter("histograma_negativo"), \PDO::PARAM_STR);
-                    $stmt->bindValue(11, $request->getParameter("nivel1"), \PDO::PARAM_STR);
-                    $stmt->bindValue(12, $request->getParameter("nivel2"), \PDO::PARAM_STR);
-                    $stmt->bindValue(13, $request->getParameter("nivel3"), \PDO::PARAM_STR);
-                    $stmt->bindValue(14, $request->getParameter("fundo1"), \PDO::PARAM_STR);
-                    $stmt->bindValue(15, $request->getParameter("fundo2"), \PDO::PARAM_STR);
+                    $xml = "";
+                    $xml .= "INSERT INTO smartweb_cor_estudo VALUES(
+                                                                    '$usuario'
+                                                                    ,$empresa
+                                                                    ,'now()'
+                                                                    ,'".$request->getParameter('linha1')."'"."
+                                                                    ,'".$request->getParameter('linha2')."'"."
+                                                                    ,'".$request->getParameter('linha3')."'"."
+                                                                    ,'".$request->getParameter('linha4')."'"."
+                                                                    ,'".$request->getParameter('linha5')."'"."
+                                                                    ,'".$request->getParameter('histograma_positivo')."'"."
+                                                                    ,'".$request->getParameter('histograma_negativo')."'"."
+                                                                    ,'".$request->getParameter('nivel1')."'"."
+                                                                    ,'".$request->getParameter('nivel2')."'"."
+                                                                    ,'".$request->getParameter('nivel3')."'"."
+                                                                    ,'".$request->getParameter('fundo1')."'"."
+                                                                    ,'".$request->getParameter('fundo2')."'"."
+                                                                   )";
 
                 }
                 else
                 {
-
-                    $xml .= "UPDATE smartweb_cor_estudo SET dh = now(), linha1 = ?, linha2 = ?, linha3 = ?, linha4 = ?, linha5 = ?, histograma_positivo = ?, histograma_negativo = ?, nivel1 = ?, nivel2 = ?, nivel3 = ?
-                                                            ,fundo1 = ?, fundo2 = ? WHERE nm_usuario = ? AND cd_empresa = ?";
+                    $xml = "";
+                    $xml .= "UPDATE smartweb_cor_estudo SET
+                                                            dh = now()
+                                                            , linha1 = '".$request->getParameter('linha1')."'"."
+                                                            , linha2 = '".$request->getParameter('linha2')."'"."
+                                                            , linha3 = '".$request->getParameter('linha3')."'"."
+                                                            , linha4 = '".$request->getParameter('linha4')."'"."
+                                                            , linha5 = '".$request->getParameter('linha5')."'"."
+                                                            , histograma_positivo = '".$request->getParameter('histograma_positivo')."'"."
+                                                            , histograma_negativo = '".$request->getParameter('histograma_negativo')."'"."
+                                                            , nivel1 = '".$request->getParameter('nivel1')."'"."
+                                                            , nivel2 = '".$request->getParameter('nivel2')."'"."
+                                                            , nivel3 = '".$request->getParameter('nivel3')."'"."
+                                                            ,fundo1 = '".$request->getParameter('fundo1')."'"."
+                                                            , fundo2 = '".$request->getParameter('fundo2')."'"."
+                                                         WHERE nm_usuario = '$usuario'
+                                                         AND cd_empresa = $empresa";
                 }
 
                 $retorno = $stmt->execute();

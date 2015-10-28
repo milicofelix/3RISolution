@@ -14,7 +14,6 @@ class Corretoras
 
     public function __construct(){
 
-        $this->conn = Conexao::getInstance('cotacoes');
     }
 
     public function getListaCorretoras(Request $request)

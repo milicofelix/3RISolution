@@ -42,8 +42,8 @@ class GraficoServer
 
     protected $ultMinutoCacheMemoria = -1;
 
-    public function __construct(){
-
+    public function __construct()
+    {
         $this->lUltimoRequest = $this->currentTimeMillis();
         $this->listAC = new ArrayList();
         $this->dataHoje = date('Ymd');
@@ -52,8 +52,7 @@ class GraficoServer
 
     public function modulosContemGrupo($grupos, $modulos)
     {
-        if( $modulos != null && !empty($modulos) )
-        {
+        if( $modulos != null && !empty($modulos) ) {
             $grupos  = str_replace($grupos,"|", ";");
             $modulos = str_replace($modulos,"|", ";");
             $vGrupos[]  = str_split($grupos,";");
@@ -67,8 +66,8 @@ class GraficoServer
         return false;
     }
 
-    public function currentTimeMillis(){
-
+    public function currentTimeMillis()
+    {
         $timeparts = explode(" ",microtime());
         $currenttime = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
 
